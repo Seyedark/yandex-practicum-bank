@@ -15,14 +15,15 @@
     <description>bank</description>
     <packaging>pom</packaging>
 
+<!--    Порядок сборки менять нельзя-->
     <modules>
         <module>eureka</module>
         <module>config</module>
-        <module>front</module>
+        <module>notification</module>
         <module>account</module>
         <module>cash</module>
         <module>transfer</module>
-        <module>notification</module>
+        <module>front</module>
     </modules>
     <properties>
         <java.version>21</java.version>

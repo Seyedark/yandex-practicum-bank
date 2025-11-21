@@ -1,4 +1,4 @@
-package ru.yandex.practicum.cash.service;
+package ru.yandex.practicum.transfer.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -8,8 +8,8 @@ import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties
 import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-import ru.yandex.practicum.cash.TestSecurityConfig;
-import ru.yandex.practicum.cash.controller.CashController;
+import ru.yandex.practicum.transfer.TestSecurityConfig;
+import ru.yandex.practicum.transfer.controller.TransferController;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,10 +22,10 @@ import static org.junit.Assert.assertEquals;
 public class NotificationServiceContractTest {
 
     @MockBean
-    private CashService cashService;
+    private TransferService transferService;
 
     @MockBean
-    private CashController cashController;
+    private TransferController transferController;
 
 
     @Test

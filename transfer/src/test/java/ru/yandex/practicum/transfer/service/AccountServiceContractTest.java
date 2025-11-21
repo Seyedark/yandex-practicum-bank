@@ -1,4 +1,4 @@
-package ru.yandex.practicum.cash.service;
+package ru.yandex.practicum.transfer.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
-import ru.yandex.practicum.cash.TestSecurityConfig;
-import ru.yandex.practicum.cash.controller.CashController;
+import ru.yandex.practicum.transfer.TestSecurityConfig;
+import ru.yandex.practicum.transfer.controller.TransferController;
 
 import static org.junit.Assert.assertEquals;
 
@@ -23,18 +23,19 @@ import static org.junit.Assert.assertEquals;
 public class AccountServiceContractTest {
 
     @MockBean
-    private CashService cashService;
+    private TransferService transferService;
 
     @MockBean
-    private CashController cashController;
+    private TransferController transferController;
+
 
     @Test
-    void findAccountByLoginTest() {
+    void transferGetTest() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         ResponseEntity<String> response = new RestTemplate().exchange(
-                "http://localhost:8080/account?login=login",
+                "http://localhost:8080/account/transfer?loginFrom=login1&loginTo=login2",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 String.class
@@ -44,24 +45,25 @@ public class AccountServiceContractTest {
     }
 
     @Test
-    void changeAccountBalanceTest() {
+    void transferPatchTest() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
         String requestBody = """
                 {
-                    "login": "login",
-                    "balance": 1
+                    "loginFrom": "login1",
+                    "balanceFrom": 1,
+                    "loginTo": "login2",
+                    "balanceTo": 1
                 }
                 """;
-
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<Void> response = restTemplate.exchange(
-                "http://localhost:8080/account/balance",
+                "http://localhost:8080/account/transfer",
                 HttpMethod.PATCH,
                 request,
                 Void.class

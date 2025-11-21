@@ -101,7 +101,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <testFramework>JUNIT5</testFramework>
-                    <baseClassForTests>ru.yandex.practicum.cash.contact.ContractTest</baseClassForTests>
+                    <baseClassForTests>ru.yandex.practicum.cash.contract.ContractTest</baseClassForTests>
                 </configuration>
             </plugin>
         </plugins>

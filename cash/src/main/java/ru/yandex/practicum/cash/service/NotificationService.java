@@ -18,7 +18,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final RestCallerService restCallerService;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(initialDelay = 60000, fixedRate = 60000)
     public void processTop100Notifications() {
         List<NotificationEntity> notificationEntityList = notificationRepository.findFirst100ByNotificationSentFalseOrderByCreatedAtAsc();
         if (notificationEntityList != null && !notificationEntityList.isEmpty()) {
