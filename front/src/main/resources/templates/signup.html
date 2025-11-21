@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Регистрация</title>
+</head>
+
+<body>
+<form th:action="@{/account}" method="post">
+    <table style="width:30%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
+        <tr>
+            <td colspan="2">
+                <span style="color:red;font-weight:bold;">*</span> Все поля обязательны для заполнения
+            </td>
+        </tr>
+        <tr th:each="error : ${errorList}">
+            <td style="color:red;" th:text="${error}" colspan="2"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Логин</td>
+            <td>
+                <input name="login" type="text" th:value="${login}" style="width:100%" required/>
+            </td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Пароль</td>
+            <td>
+                <input name="password" type="password" style="width:100%" required/>
+            </td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Имя</td>
+            <td>
+                <input name="firstName" type="text" th:value="${firstName}" style="width:100%" required/>
+            </td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Фамилия</td>
+            <td>
+                <input name="lastName" type="text" th:value="${lastName}" style="width:100%" required/>
+            </td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Email</td>
+            <td>
+                <input name="email" type="text" th:value="${email}" style="width:100%" required/>
+            </td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Дата рождения</td>
+            <td>
+                <input name="birthdate" type="date" th:value="${birthdate}" style="width:100%" required/>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align:right" colspan="2">
+                <button type="submit">Зарегистрироваться</button>
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>

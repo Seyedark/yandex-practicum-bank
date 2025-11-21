@@ -1,0 +1,91 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=accounts
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9090/realms/master
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:9090/realms/master
+        registration:
+          notification-client:
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: notification_client
+            client-secret: XtBb8sXukFDmUQgYGJWd6mylwfFxyUw0
+            scope: profile
+            clientAuthenticationMethod: client_secret_post
+  flyway:
+    url: jdbc:postgresql://localhost:5432/postgres
+    user: postgres
+    password: postgres
+    schemas: accounts
+    default-schema: accounts
+    enabled: true
+    locations: classpath:db/migration
+    table: schema_version
+    sql-migration-prefix: V
+    sql-migration-separator: __
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    out-of-order: false
+
+resilience4j:
+  circuitbreaker:
+    circuitBreakerAspectOrder: 1
+    configs:
+      default:
+        slidingWindowSize: 20
+        minimum-number-of-calls: 3
+        permitted-number-of-calls-in-half-open-state: 5
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: 2s
+        wait-duration-in-open-state: 10s
+        max-wait-duration-in-half-open-state: 5s
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - java.lang.Throwable
+          - org.springframework.web.client.HttpServerErrorException
+          - org.springframework.web.client.HttpClientErrorException
+          - java.io.IOException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+    instances:
+      notificationService:
+        base-config: default
+
+  retry:
+    retryAspectOrder: 2
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 1s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        max-wait-duration: 5s
+        retry-exceptions:
+          - java.lang.Throwable
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+    instances:
+      notificationService:
+        base-config: default
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.client.HttpClientErrorException$UnprocessableEntity
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.client.HttpClientErrorException
+urls:
+  notification: http://notification-service/notification/email
