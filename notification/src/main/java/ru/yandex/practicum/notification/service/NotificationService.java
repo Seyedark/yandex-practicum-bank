@@ -35,7 +35,7 @@ public class NotificationService {
     /**
      * Т.к. метод заглушка нет логики обработки ошибок
      */
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(initialDelay = 60000, fixedRate = 60000)
     public void processTop100Notifications() {
         List<NotificationEntity> notifications = notificationRepository.findFirst100ByEmailSentFalseOrderByCreatedAtAsc();
         notifications.forEach(x -> {
