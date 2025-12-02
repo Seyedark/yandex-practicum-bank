@@ -25,15 +25,16 @@ public class CashServiceContractTest {
     private AccountService accountService;
 
     @Test
-    void  changeAccountBalanceTest() {
+    void changeAccountBalanceTest() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
         String requestBody = """
                 {
-                loginFrom  : "login1",
-                loginTo: "login2",
-                transferAmount:  1
+                login       : "login",
+                currency    : "RUB",
+                changeAmount: 1,
+                actionEnum  : "ACCRUAL"
                 }
                 """;
         HttpHeaders headers = new HttpHeaders();

@@ -13,6 +13,7 @@ import ru.yandex.practicum.transfer.TestSecurityConfig;
 import ru.yandex.practicum.transfer.dao.repository.NotificationRepository;
 import ru.yandex.practicum.transfer.dto.TransferAccountsDto;
 import ru.yandex.practicum.transfer.dto.TransferFrontRequestDto;
+import ru.yandex.practicum.transfer.enums.CurrencyEnum;
 import ru.yandex.practicum.transfer.exception.TransferCustomException;
 
 import java.math.BigDecimal;
@@ -46,6 +47,8 @@ public class TransferServiceTest extends SpringBootPostgreSQLBase {
         TransferFrontRequestDto transferFrontRequestDto = new TransferFrontRequestDto();
         transferFrontRequestDto.setLoginFrom("login1");
         transferFrontRequestDto.setLoginTo("login2");
+        transferFrontRequestDto.setCurrencyFrom(CurrencyEnum.RUB.name());
+        transferFrontRequestDto.setCurrencyTo(CurrencyEnum.RUB.name());
         transferFrontRequestDto.setTransferAmount(BigDecimal.ONE);
 
         TransferAccountsDto transferAccountsDto = new TransferAccountsDto();
@@ -55,11 +58,11 @@ public class TransferServiceTest extends SpringBootPostgreSQLBase {
         transferAccountsDto.setLoginFrom("login1");
         transferAccountsDto.setBalanceFrom(BigDecimal.ONE);
         transferAccountsDto.setEmailFrom("login1@mail.ru");
-        when(restCallerService.getTransferAccountsDto(any(), any())).thenReturn(transferAccountsDto);
+        when(restCallerService.getTransferAccountsDto(any(), any(), any(), any())).thenReturn(transferAccountsDto);
 
         transferService.transfer(transferFrontRequestDto);
 
-        verify(restCallerService, times(1)).getTransferAccountsDto(any(), any());
+        verify(restCallerService, times(1)).getTransferAccountsDto(any(), any(), any(), any());
         verify(restCallerService, times(1)).transfer(any());
         verify(notificationRepository, times(1)).saveAll(any());
     }
@@ -70,6 +73,8 @@ public class TransferServiceTest extends SpringBootPostgreSQLBase {
         TransferFrontRequestDto transferFrontRequestDto = new TransferFrontRequestDto();
         transferFrontRequestDto.setLoginFrom("login1");
         transferFrontRequestDto.setLoginTo("login2");
+        transferFrontRequestDto.setCurrencyFrom(CurrencyEnum.RUB.name());
+        transferFrontRequestDto.setCurrencyTo(CurrencyEnum.RUB.name());
         transferFrontRequestDto.setTransferAmount(BigDecimal.TWO);
 
         TransferAccountsDto transferAccountsDto = new TransferAccountsDto();
@@ -79,12 +84,12 @@ public class TransferServiceTest extends SpringBootPostgreSQLBase {
         transferAccountsDto.setLoginFrom("login1");
         transferAccountsDto.setBalanceFrom(BigDecimal.ONE);
         transferAccountsDto.setEmailFrom("login1@mail.ru");
-        when(restCallerService.getTransferAccountsDto(any(), any())).thenReturn(transferAccountsDto);
+        when(restCallerService.getTransferAccountsDto(any(), any(), any(), any())).thenReturn(transferAccountsDto);
 
         assertThatThrownBy(() -> transferService.transfer(transferFrontRequestDto))
                 .isInstanceOf(TransferCustomException.class);
 
-        verify(restCallerService, times(1)).getTransferAccountsDto(any(), any());
+        verify(restCallerService, times(1)).getTransferAccountsDto(any(), any(), any(), any());
         verify(restCallerService, times(0)).transfer(any());
         verify(notificationRepository, times(0)).saveAll(any());
     }

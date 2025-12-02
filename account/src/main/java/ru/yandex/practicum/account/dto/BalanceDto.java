@@ -4,13 +4,11 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ShortAccountDto {
-    String login;
-    String firstName;
-    String lastName;
-    List<AccountBalanceDto> accountBalanceDtoList;
+public class BalanceDto {
+    String email;
+    BigDecimal balance;
 }

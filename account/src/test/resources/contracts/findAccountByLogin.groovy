@@ -23,8 +23,7 @@ Contract.make {
                 firstName  : "Тест",
                 lastName   : "Тестов",
                 email      : "login@mail.ru",
-                "birthDate": "1990-01-01",
-                balance    : 1
+                birthDate: "1990-01-01"
         ])
         headers {
             contentType(applicationJson())

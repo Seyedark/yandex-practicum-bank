@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -16,5 +15,4 @@ public class AccountDto {
     String lastName;
     String email;
     LocalDate birthDate;
-    BigDecimal balance;
 }

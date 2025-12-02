@@ -12,4 +12,6 @@ public class TransferFrontRequestDto {
     String loginFrom;
     String loginTo;
     BigDecimal transferAmount;
+    String currencyFrom;
+    String currencyTo;
 }

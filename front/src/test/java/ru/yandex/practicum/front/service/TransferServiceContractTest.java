@@ -34,7 +34,9 @@ public class TransferServiceContractTest {
                 {
                 login  : "login",
                 changeAmount: 1,
-                actionEnum:  "ACCRUAL"
+                actionEnum:  "ACCRUAL",
+                currencyFrom: "RUB",
+                currencyTo  : "RUB"
                 }
                 """;
         HttpHeaders headers = new HttpHeaders();

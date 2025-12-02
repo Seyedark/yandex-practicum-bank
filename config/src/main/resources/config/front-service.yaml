@@ -116,6 +116,7 @@ urls:
       account: http://account-service/account?login={login}
       full: http://account-service/account/full?login={login}
     create: http://account-service/account
+    balance: http://account-service/account/balance
     patch:
       password: http://account-service/account/password
       info: http://account-service/account/info

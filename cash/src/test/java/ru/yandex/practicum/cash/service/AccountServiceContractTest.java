@@ -29,12 +29,12 @@ public class AccountServiceContractTest {
     private CashController cashController;
 
     @Test
-    void findAccountByLoginTest() {
+    void findBalanceTest() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         ResponseEntity<String> response = new RestTemplate().exchange(
-                "http://localhost:8080/account?login=login",
+                "http://localhost:8080/account/balance?login=login&currency=RUB",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 String.class
@@ -51,6 +51,7 @@ public class AccountServiceContractTest {
         String requestBody = """
                 {
                     "login": "login",
+                    "currency": "RUB",
                     "balance": 1
                 }
                 """;

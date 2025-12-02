@@ -5,16 +5,10 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AccountDto {
-    String login;
-    String password;
-    String firstName;
-    String lastName;
+public class BalanceDto {
     String email;
-    LocalDate birthDate;
     BigDecimal balance;
 }

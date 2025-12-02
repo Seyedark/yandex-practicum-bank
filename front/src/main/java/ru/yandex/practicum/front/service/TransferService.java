@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import ru.yandex.practicum.front.dto.AccountCreateRequestDto;
 import ru.yandex.practicum.front.dto.TransferFrontRequestDto;
 import ru.yandex.practicum.front.enums.KeycloakEnum;
 
@@ -31,18 +30,20 @@ public class TransferService {
 
     @Retry(name = "transferService")
     @CircuitBreaker(name = "transferService", fallbackMethod = "fallbackTransfer")
-    public List<String> transfer(String login, String loginTo, BigDecimal transferAmount) {
+    public List<String> transfer(String login, String loginTo, BigDecimal transferAmount, String currencyTo, String currencyFrom) {
         TransferFrontRequestDto transferFrontRequestDto = new TransferFrontRequestDto();
         transferFrontRequestDto.setLoginFrom(login);
         transferFrontRequestDto.setLoginTo(loginTo);
         transferFrontRequestDto.setTransferAmount(transferAmount);
+        transferFrontRequestDto.setCurrencyFrom(currencyFrom);
+        transferFrontRequestDto.setCurrencyTo(currencyTo);
         HttpEntity<TransferFrontRequestDto> request =
                 new HttpEntity<>(transferFrontRequestDto, oAuth2Service.formHeadersWithToken(KeycloakEnum.TRANSFER));
         restTemplate.patchForObject(changeAccountBalanceUrl, request, Void.class);
         return new ArrayList<>();
     }
 
-    public List<String> fallbackTransfer(String login, String loginTo, BigDecimal transferAmount, Exception exception) {
+    public List<String> fallbackTransfer(String login, String loginTo, BigDecimal transferAmount, String currencyTo, String currencyFrom, Exception exception) {
         return fallbackProcessService.basicUnprocessableEntityFallback(exception);
     }
 }

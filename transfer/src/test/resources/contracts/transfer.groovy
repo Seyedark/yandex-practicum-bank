@@ -11,9 +11,11 @@ Contract.make {
             contentType(applicationJson())
         }
         body([
-                login  : "login",
+                login       : "login",
                 changeAmount: 1,
-                actionEnum:  "ACCRUAL"
+                actionEnum  : "ACCRUAL",
+                currencyFrom: "RUB",
+                currencyTo  : "RUB"
         ])
     }
     response {

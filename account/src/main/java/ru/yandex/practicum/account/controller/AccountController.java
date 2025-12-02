@@ -51,6 +51,20 @@ public class AccountController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/balance")
+    @PreAuthorize("hasAuthority('account_client')")
+    public ResponseEntity<Void> createNewAccountBalance(@RequestBody CreateBalanceRequestDto createBalanceRequestDto) {
+        accountService.createNewAccountBalance(createBalanceRequestDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/balance")
+    @PreAuthorize("hasAuthority('account_client')")
+    public ResponseEntity<BalanceDto> findAccountByLoginAndCurrency(@RequestParam(name = "login") String login,
+                                                                    @RequestParam(name = "currency") String currency) {
+        return ResponseEntity.ok(accountService.findAccountByLoginAndCurrency(login, currency));
+    }
+
     @PatchMapping("/balance")
     @PreAuthorize("hasAuthority('account_client')")
     public ResponseEntity<Void> changeBalance(@RequestBody ChangeAccountBalanceRequestDto changeAccountBalanceRequestDto) {
@@ -61,8 +75,10 @@ public class AccountController {
     @GetMapping("/transfer")
     @PreAuthorize("hasAuthority('account_client')")
     public ResponseEntity<TransferAccountsDto> transfer(@RequestParam(name = "loginFrom") String loginFrom,
-                                                        @RequestParam(name = "loginTo") String loginTo) {
-        return ResponseEntity.ok(accountService.getTransferAccountsDto(loginFrom, loginTo));
+                                                        @RequestParam(name = "loginTo") String loginTo,
+                                                        @RequestParam(name = "currencyTo") String currencyTo,
+                                                        @RequestParam(name = "currencyFrom") String currencyFrom) {
+        return ResponseEntity.ok(accountService.getTransferAccountsDto(loginFrom, currencyFrom, loginTo, currencyTo));
     }
 
     @PatchMapping("/transfer")

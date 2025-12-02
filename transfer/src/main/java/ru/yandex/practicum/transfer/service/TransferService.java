@@ -28,14 +28,16 @@ public class TransferService {
     @Transactional
     public void transfer(TransferFrontRequestDto transferFrontRequestDto) {
         TransferAccountsDto transferAccountsDto = restCallerService.getTransferAccountsDto(transferFrontRequestDto.getLoginFrom(),
-                transferFrontRequestDto.getLoginTo());
+                transferFrontRequestDto.getLoginTo(), transferFrontRequestDto.getCurrencyTo(), transferFrontRequestDto.getCurrencyFrom());
         if (checkBalance(transferAccountsDto.getBalanceFrom(), transferFrontRequestDto.getTransferAmount())) {
             notificationRepository.saveAll(formNotificationList(transferAccountsDto, transferFrontRequestDto.getTransferAmount()));
             TransferRequestDto transferRequestDto = new TransferRequestDto();
             transferRequestDto.setLoginFrom(transferAccountsDto.getLoginFrom());
             transferRequestDto.setBalanceFrom(transferAccountsDto.getBalanceFrom().subtract(transferFrontRequestDto.getTransferAmount()));
             transferRequestDto.setLoginTo(transferAccountsDto.getLoginTo());
-            transferRequestDto.setBalanceTo(transferAccountsDto.getBalanceFrom().add(transferFrontRequestDto.getTransferAmount()));
+            transferRequestDto.setBalanceTo(transferAccountsDto.getBalanceTo().add(transferFrontRequestDto.getTransferAmount()));
+            transferRequestDto.setCurrencyFrom(transferFrontRequestDto.getCurrencyFrom());
+            transferRequestDto.setCurrencyTo(transferFrontRequestDto.getCurrencyTo());
             restCallerService.transfer(transferRequestDto);
         } else {
             List<String> errorTypeList = new ArrayList<>();

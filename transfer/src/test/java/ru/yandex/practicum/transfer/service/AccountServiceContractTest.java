@@ -35,7 +35,7 @@ public class AccountServiceContractTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         ResponseEntity<String> response = new RestTemplate().exchange(
-                "http://localhost:8080/account/transfer?loginFrom=login1&loginTo=login2",
+                "http://localhost:8080/account/transfer?loginFrom=login1&loginTo=login2&currencyTo=RUB&currencyFrom=RUB",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 String.class
@@ -51,10 +51,12 @@ public class AccountServiceContractTest {
 
         String requestBody = """
                 {
-                    "loginFrom": "login1",
-                    "balanceFrom": 1,
-                    "loginTo": "login2",
-                    "balanceTo": 1
+                loginFrom  : "login1",
+                currencyFrom: "RUB",
+                balanceFrom: 1,
+                loginTo    : "login2",
+                currencyTo: "RUB",
+                balanceTo  : 1
                 }
                 """;
         HttpHeaders headers = new HttpHeaders();

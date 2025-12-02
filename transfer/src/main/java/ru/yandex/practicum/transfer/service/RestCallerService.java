@@ -38,10 +38,10 @@ public class RestCallerService {
 
     @Retry(name = "transferService")
     @CircuitBreaker(name = "transferService", fallbackMethod = "fallbackGetTransferAccountsDto")
-    public TransferAccountsDto getTransferAccountsDto(String loginFrom, String loginTo) {
+    public TransferAccountsDto getTransferAccountsDto(String loginFrom, String loginTo, String currencyTo, String currencyFrom) {
         HttpEntity<Void> request = new HttpEntity<>(formHeadersWithToken(KeycloakEnum.ACCOUNT));
         ResponseEntity<TransferAccountsDto> response = restTemplate.exchange(getTransferAccountsUrl, HttpMethod.GET,
-                request, TransferAccountsDto.class, loginFrom, loginTo);
+                request, TransferAccountsDto.class, loginFrom, loginTo, currencyTo, currencyFrom);
         return response.getBody();
     }
 
@@ -75,7 +75,7 @@ public class RestCallerService {
         return headers;
     }
 
-    private TransferAccountsDto fallbackGetTransferAccountsDto(String loginFrom, String loginTo, Exception exception) {
+    private TransferAccountsDto fallbackGetTransferAccountsDto(String loginFrom, String loginTo, String currencyTo, String currencyFrom, Exception exception) {
         defaultFallbackLogic(exception);
         return null;
     }

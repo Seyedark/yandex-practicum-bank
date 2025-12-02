@@ -7,10 +7,9 @@ Contract.make {
             queryParameters {
                 parameter("loginFrom", "login1")
                 parameter("loginTo", "login2")
+                parameter("currencyTo", "RUB")
+                parameter("currencyFrom", "RUB")
             }
-        }
-        headers {
-            contentType(applicationJson())
         }
     }
     response {

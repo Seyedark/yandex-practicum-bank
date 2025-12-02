@@ -108,7 +108,7 @@ resilience4j:
 urls:
   account:
     get:
-      account: http://account-service/account?login={login}
+      balance: http://account-service/account/balance?login={login}&currency={currency}
     patch:
       balance: http://account-service/account/balance
   notification: http://notification-service/notification/email

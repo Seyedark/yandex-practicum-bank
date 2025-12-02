@@ -109,7 +109,7 @@ urls:
   account:
     get:
       account: http://account-service/account?login={login}
-      transfer: http://account-service/account/transfer?loginFrom={loginFrom}&loginTo={loginTo}
+      transfer: http://account-service/account/transfer?loginFrom={loginFrom}&loginTo={loginTo}&currencyTo={currencyTo}&currencyFrom={currencyFrom}
     patch:
       balance: http://account-service/account/balance
       transfer: http://account-service/account/transfer
