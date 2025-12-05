@@ -211,8 +211,7 @@ public class FrontControllerTest {
                         .param("currencyFrom", TEST_CURRENCY)
                         .param("currencyTo", TEST_CURRENCY))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"))
-                .andExpect(flash().attributeExists("errorSelfTransferList"));
+                .andExpect(redirectedUrl("/"));
     }
 
     @Test

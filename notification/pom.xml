@@ -7,7 +7,6 @@
         <artifactId>bank</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>ru.yandex.practicum</groupId>
     <artifactId>notification</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>notification</name>

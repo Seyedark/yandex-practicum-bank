@@ -11,6 +11,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import ru.yandex.practicum.transfer.SpringBootPostgreSQLBase;
 import ru.yandex.practicum.transfer.TestSecurityConfig;
 import ru.yandex.practicum.transfer.dao.repository.NotificationRepository;
+import ru.yandex.practicum.transfer.dto.BlockDto;
+import ru.yandex.practicum.transfer.dto.ConvertResponseDto;
 import ru.yandex.practicum.transfer.dto.TransferAccountsDto;
 import ru.yandex.practicum.transfer.dto.TransferFrontRequestDto;
 import ru.yandex.practicum.transfer.enums.CurrencyEnum;
@@ -58,6 +60,14 @@ public class TransferServiceTest extends SpringBootPostgreSQLBase {
         transferAccountsDto.setLoginFrom("login1");
         transferAccountsDto.setBalanceFrom(BigDecimal.ONE);
         transferAccountsDto.setEmailFrom("login1@mail.ru");
+
+        BlockDto blockDto = new BlockDto();
+        blockDto.setBlocked(false);
+
+        ConvertResponseDto convertResponseDto = new ConvertResponseDto();
+        convertResponseDto.setConvertedAmount(BigDecimal.ONE);
+        when(restCallerService.convert(any())).thenReturn(convertResponseDto);
+        when(restCallerService.getBlock()).thenReturn(blockDto);
         when(restCallerService.getTransferAccountsDto(any(), any(), any(), any())).thenReturn(transferAccountsDto);
 
         transferService.transfer(transferFrontRequestDto);
@@ -84,6 +94,11 @@ public class TransferServiceTest extends SpringBootPostgreSQLBase {
         transferAccountsDto.setLoginFrom("login1");
         transferAccountsDto.setBalanceFrom(BigDecimal.ONE);
         transferAccountsDto.setEmailFrom("login1@mail.ru");
+
+        BlockDto blockDto = new BlockDto();
+        blockDto.setBlocked(false);
+
+        when(restCallerService.getBlock()).thenReturn(blockDto);
         when(restCallerService.getTransferAccountsDto(any(), any(), any(), any())).thenReturn(transferAccountsDto);
 
         assertThatThrownBy(() -> transferService.transfer(transferFrontRequestDto))

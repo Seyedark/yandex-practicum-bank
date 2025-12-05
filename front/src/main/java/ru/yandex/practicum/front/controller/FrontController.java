@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.yandex.practicum.front.dto.AccountWithUsersDto;
+import ru.yandex.practicum.front.dto.ExchangeDto;
 import ru.yandex.practicum.front.enums.ActionEnum;
 import ru.yandex.practicum.front.enums.CurrencyEnum;
 import ru.yandex.practicum.front.service.AccountService;
@@ -31,7 +32,7 @@ public class FrontController {
     public String mainPage(@AuthenticationPrincipal UserDetails customUserDetails,
                            Model model) {
         AccountWithUsersDto accountWithUsersDto = accountService.getAccountWithAllUsers(customUserDetails.getUsername());
-
+        List<ExchangeDto> exchangeDtoList = transferService.getExchangeDtoList();
         model.addAttribute("login", customUserDetails.getUsername());
         model.addAttribute("firstName", accountWithUsersDto.getFirstName());
         model.addAttribute("lastName", accountWithUsersDto.getLastName());
@@ -39,6 +40,7 @@ public class FrontController {
         model.addAttribute("usersList", accountWithUsersDto.getShortAccountDtoList());
         model.addAttribute("currentAccountBalance", accountWithUsersDto.getAccountBalanceDtoList());
         model.addAttribute("existingCurrency", CurrencyEnum.values());
+        model.addAttribute("exchangeDtoList", exchangeDtoList);
         return "main";
     }
 
@@ -131,8 +133,8 @@ public class FrontController {
                 errorList.add("Перевод между 1 и тем же счётом невозможен");
             } else {
                 errorList = transferService.transfer(customUserDetails.getUsername(), loginTo, transferAmount, currencyTo, currencyFrom);
-                redirectAttributes.addFlashAttribute("errorSelfTransferList", errorList);
             }
+            redirectAttributes.addFlashAttribute("errorSelfTransferList", errorList);
         } else {
             errorList = transferService.transfer(customUserDetails.getUsername(), loginTo, transferAmount, currencyTo, currencyFrom);
             redirectAttributes.addFlashAttribute("errorTransferList", errorList);

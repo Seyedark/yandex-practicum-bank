@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.cash.dao.entity.NotificationEntity;
 import ru.yandex.practicum.cash.dao.repository.NotificationRepository;
 import ru.yandex.practicum.cash.dto.BalanceDto;
+import ru.yandex.practicum.cash.dto.BlockDto;
 import ru.yandex.practicum.cash.dto.ChangeAccountBalanceFrontRequestDto;
 import ru.yandex.practicum.cash.dto.ChangeAccountBalanceRequestDto;
 import ru.yandex.practicum.cash.enums.ActionEnum;
@@ -28,6 +29,12 @@ public class CashService {
 
     @Transactional
     public void changeAccountBalance(ChangeAccountBalanceFrontRequestDto changeAccountBalanceFrontRequestDto) {
+        BlockDto blockDto = restCallerService.getBlock();
+        if (blockDto.isBlocked()) {
+            List<String> errorTypeList = new ArrayList<>();
+            errorTypeList.add(CashErrorEnum.BLOCK_ERROR.getMessage());
+            throw new CashCustomException(errorTypeList);
+        }
         BalanceDto balanceDto = restCallerService.getBalance(changeAccountBalanceFrontRequestDto.getLogin(),
                 changeAccountBalanceFrontRequestDto.getCurrency());
         NotificationEntity notificationEntity = new NotificationEntity();
@@ -41,7 +48,7 @@ public class CashService {
             ChangeAccountBalanceRequestDto changeAccountBalanceRequestDto = new ChangeAccountBalanceRequestDto();
             changeAccountBalanceRequestDto.setLogin(changeAccountBalanceFrontRequestDto.getLogin());
             changeAccountBalanceRequestDto.setCurrency(changeAccountBalanceFrontRequestDto.getCurrency());
-            changeAccountBalanceRequestDto.setBalance(changeAccountBalanceFrontRequestDto.getChangeAmount());
+            changeAccountBalanceRequestDto.setBalance(balanceDto.getBalance().add(changeAccountBalanceFrontRequestDto.getChangeAmount()));
 
             restCallerService.changeBalance(changeAccountBalanceRequestDto);
         } else {

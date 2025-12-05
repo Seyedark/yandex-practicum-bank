@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import ru.yandex.practicum.front.dto.AccountDto;
 import ru.yandex.practicum.front.dto.AccountWithUsersDto;
+import ru.yandex.practicum.front.dto.ExchangeDto;
 import ru.yandex.practicum.front.enums.ErrorMessageEnum;
 
 import java.util.ArrayList;
@@ -46,5 +47,10 @@ public class FallbackProcessService {
     public AccountWithUsersDto getAccountWithAllUsersFallback(String login, Exception exception) throws Exception {
         log.error(exception.getMessage());
         throw exception;
+    }
+
+    public List<ExchangeDto> fallbackGetExchangeDtoList(Exception exception) {
+        log.error((exception.getMessage()));
+        return null;
     }
 }

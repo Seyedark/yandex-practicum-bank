@@ -8,7 +8,7 @@ spring:
       auto-registration:
         enabled: false
   config:
-    import: "optional:configserver:"
+    import: optional:configserver:http://localhost:9999
 
   # Отключаем Flyway
   flyway:

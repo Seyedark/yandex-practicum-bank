@@ -17,6 +17,20 @@ spring:
           keycloak:
             issuer-uri: http://localhost:9090/realms/master
         registration:
+          blocker-client:
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: blocker_client
+            client-secret: c81Y8FXddFGEQOchrQpmEzUyExFWybPM
+            scope: profile
+            clientAuthenticationMethod: client_secret_post
+          exchange-client:
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: exchange_client
+            client-secret: d2BXJ8UKxrdbF8TybLsZp0vsIGXCwt8Y
+            scope: profile
+            clientAuthenticationMethod: client_secret_post
           notification-client:
             provider: keycloak
             authorizationGrantType: client_credentials
@@ -73,6 +87,10 @@ resilience4j:
         base-config: default
       notificationService:
         base-config: default
+      blockerService:
+        base-config: default
+      exchangeService:
+        base-config: default
 
   retry:
     retryAspectOrder: 2
@@ -104,6 +122,13 @@ resilience4j:
           - org.springframework.web.client.HttpClientErrorException$UnprocessableEntity
           - org.springframework.web.client.HttpClientErrorException$NotFound
           - org.springframework.web.client.HttpClientErrorException
+      exchangeService:
+        base-config: default
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.client.HttpClientErrorException$UnprocessableEntity
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.client.HttpClientErrorException
 
 urls:
   account:
@@ -114,3 +139,7 @@ urls:
       balance: http://account-service/account/balance
       transfer: http://account-service/account/transfer
   notification: http://notification-service/notification/email
+  blocker: http://blocker-service/blocker/block
+  exchange:
+    exchange: http://exchange-service/exchange/exchange
+    convert: http://exchange-service/exchange/convert

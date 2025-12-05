@@ -6,7 +6,7 @@ Contract.make {
     description "Should change cash"
     request {
         method PATCH()
-        url "/transfer"
+        url "/transfer/transfer"
         headers {
             contentType(applicationJson())
         }

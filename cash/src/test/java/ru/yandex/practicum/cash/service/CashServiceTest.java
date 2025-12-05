@@ -13,6 +13,7 @@ import ru.yandex.practicum.cash.SpringBootPostgreSQLBase;
 import ru.yandex.practicum.cash.TestSecurityConfig;
 import ru.yandex.practicum.cash.dao.repository.NotificationRepository;
 import ru.yandex.practicum.cash.dto.BalanceDto;
+import ru.yandex.practicum.cash.dto.BlockDto;
 import ru.yandex.practicum.cash.dto.ChangeAccountBalanceFrontRequestDto;
 import ru.yandex.practicum.cash.enums.ActionEnum;
 import ru.yandex.practicum.cash.enums.CurrencyEnum;
@@ -61,6 +62,10 @@ public class CashServiceTest extends SpringBootPostgreSQLBase {
         changeAccountBalanceFrontRequestDto.setChangeAmount(BigDecimal.ONE);
         changeAccountBalanceFrontRequestDto.setActionEnum(ActionEnum.ACCRUAL);
 
+        BlockDto blockDto = new BlockDto();
+        blockDto.setBlocked(false);
+
+        when(restCallerService.getBlock()).thenReturn(blockDto);
         when(restCallerService.getBalance(changeAccountBalanceFrontRequestDto.getLogin(), changeAccountBalanceFrontRequestDto.getCurrency())).thenReturn(balanceDto);
 
         cashService.changeAccountBalance(changeAccountBalanceFrontRequestDto);
@@ -81,7 +86,10 @@ public class CashServiceTest extends SpringBootPostgreSQLBase {
         changeAccountBalanceFrontRequestDto.setCurrency(CurrencyEnum.RUB.name());
         changeAccountBalanceFrontRequestDto.setChangeAmount(BigDecimal.ONE);
         changeAccountBalanceFrontRequestDto.setActionEnum(ActionEnum.WRITE_OFF);
+        BlockDto blockDto = new BlockDto();
+        blockDto.setBlocked(false);
 
+        when(restCallerService.getBlock()).thenReturn(blockDto);
         when(restCallerService.getBalance(changeAccountBalanceFrontRequestDto.getLogin(), changeAccountBalanceFrontRequestDto.getCurrency())).thenReturn(balanceDto);
 
         cashService.changeAccountBalance(changeAccountBalanceFrontRequestDto);
@@ -102,7 +110,10 @@ public class CashServiceTest extends SpringBootPostgreSQLBase {
         changeAccountBalanceFrontRequestDto.setCurrency(CurrencyEnum.RUB.name());
         changeAccountBalanceFrontRequestDto.setChangeAmount(BigDecimal.ONE);
         changeAccountBalanceFrontRequestDto.setActionEnum(ActionEnum.WRITE_OFF);
+        BlockDto blockDto = new BlockDto();
+        blockDto.setBlocked(false);
 
+        when(restCallerService.getBlock()).thenReturn(blockDto);
         when(restCallerService.getBalance(changeAccountBalanceFrontRequestDto.getLogin(), changeAccountBalanceFrontRequestDto.getCurrency())).thenReturn(balanceDto);
 
         assertThatThrownBy(() -> cashService.changeAccountBalance(changeAccountBalanceFrontRequestDto))

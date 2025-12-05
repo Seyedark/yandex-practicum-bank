@@ -15,11 +15,14 @@
     <description>bank</description>
     <packaging>pom</packaging>
 
-<!--    Порядок сборки менять нельзя-->
+    <!--    Порядок сборки менять нельзя-->
     <modules>
         <module>eureka</module>
         <module>config</module>
         <module>notification</module>
+        <module>exchange</module>
+        <module>blocker</module>
+        <module>generator</module>
         <module>account</module>
         <module>cash</module>
         <module>transfer</module>

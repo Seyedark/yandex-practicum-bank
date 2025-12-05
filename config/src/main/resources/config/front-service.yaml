@@ -121,4 +121,6 @@ urls:
       password: http://account-service/account/password
       info: http://account-service/account/info
   cash: http://cash-service/cash
-  transfer: http://transfer-service/transfer
+  transfer:
+    patch: http://transfer-service/transfer/transfer
+    get: http://transfer-service/transfer/exchange

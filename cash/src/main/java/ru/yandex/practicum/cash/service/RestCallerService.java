@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.cash.dto.BalanceDto;
+import ru.yandex.practicum.cash.dto.BlockDto;
 import ru.yandex.practicum.cash.dto.ChangeAccountBalanceRequestDto;
 import ru.yandex.practicum.cash.dto.NotificationEmailRequestDto;
 import ru.yandex.practicum.cash.enums.KeycloakEnum;
@@ -31,6 +32,9 @@ public class RestCallerService {
 
     @Value("${urls.notification}")
     private String notificationUrl;
+
+    @Value("${urls.blocker}")
+    private String blockerUrl;
 
     private final RestTemplate restTemplate;
     private final OAuth2AuthorizedClientManager clientManager;
@@ -60,6 +64,15 @@ public class RestCallerService {
         restTemplate.postForObject(notificationUrl, request, Void.class);
     }
 
+    @Retry(name = "blockerService")
+    @CircuitBreaker(name = "blockerService", fallbackMethod = "fallbackGetBlock")
+    public BlockDto getBlock() {
+        HttpEntity<Void> request = new HttpEntity<>(formHeadersWithToken(KeycloakEnum.BLOCKER));
+        ResponseEntity<BlockDto> response = restTemplate.exchange(blockerUrl, HttpMethod.GET, request,
+                BlockDto.class);
+        return response.getBody();
+    }
+
     private HttpHeaders formHeadersWithToken(KeycloakEnum keycloakEnum) {
         OAuth2AuthorizeRequest request = OAuth2AuthorizeRequest
                 .withClientRegistrationId(keycloakEnum.getClientId())
@@ -85,6 +98,11 @@ public class RestCallerService {
 
     private void fallbackSendNotifications(List<NotificationEmailRequestDto> notificationEmailRequestDtoList, Exception exception) {
         defaultFallbackLogic(exception);
+    }
+
+    private BlockDto fallbackGetBlock(Exception exception) {
+        defaultFallbackLogic(exception);
+        return null;
     }
 
     private void defaultFallbackLogic(Exception exception) {
