@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # Имя ConfigMap - используется для ссылки
+  name: {{ include "generator.name" . }}
+  # Метки для организации (опционально)
+  labels:
+    app: {{ include "generator.name" . }}
+data:
+  #Quote нужен для экранирования
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: {{ .Values.config.keycloak_url | quote }}
+  SPRING_SECURITY_OAUTH2_PROVIDER_ISSUER_URI: {{ .Values.config.keycloak_url | quote }}
+  EXCHANGE_URL: {{ .Values.config.exchange_url | quote }}

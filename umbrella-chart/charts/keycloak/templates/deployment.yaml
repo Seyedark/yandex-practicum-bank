@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+# Метаданные объекта
+metadata:
+  # Имя Deployment. Уникальное в namespace, используется в командах kubectl
+  name: {{ include "keycloak.name" . }}
+  # Метки для организации и выборки объектов
+  labels:
+    # Стандартная метка для идентификации приложения
+    app: {{ include "keycloak.name" . }}
+spec:
+  # Количество реплик (копий) приложения
+  replicas: {{ .Values.replicaCount }}
+  # Селектор - определяет какие поды управляются этим Deployment
+  selector:
+    # Ищет поды с метками, которые соответствуют этим
+    matchLabels:
+      # Будет управлять всными подами с этой меткой
+      app: {{ include "keycloak.name" . }}
+  # Шаблон для создания новых подов
+  template:
+    # Метаданные создаваемых подов
+    metadata:
+      # Метки, которые будут присвоены создаваемым подам
+      labels:
+        # ЭТА МЕТКА ДОЛЖНА СОВПАДАТЬ С SELECTOR!
+        app: {{ include "keycloak.name" . }}
+    # Спецификация контейнеров внутри пода
+    spec:
+      containers:
+        # Имя контейнера внутри пода (для логирования, мониторинга)
+        - name: {{ include "keycloak.name" . }}
+          # Docker образ для контейнера
+          image: {{ .Values.image.full }}
+          # Аргумента для старта приложения
+          args: ["start-dev"]
+          # Порт из конфига: server.port
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          # Ссылается на переменные окружения в которых name равно данному имени
+          envFrom:
+            - configMapRef:
+                name: {{ include "keycloak.name" . }}
+          volumeMounts:
+            # Имя volume из Pod, а не PVC!
+            - name: {{ include "keycloak.name" . }}
+              mountPath: /opt/keycloak/data
+      volumes:
+        # Задаётся имя волума для Pod
+        - name: {{ include "keycloak.name" . }}
+          persistentVolumeClaim:
+            # Ссылается на имя PVC(Как флешка)
+            claimName: {{ include "keycloak.name" . }}

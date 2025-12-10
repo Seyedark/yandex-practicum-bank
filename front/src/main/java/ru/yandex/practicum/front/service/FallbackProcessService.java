@@ -37,7 +37,7 @@ public class FallbackProcessService {
     public AccountDto getAccountFallback(String login, Exception exception) {
         if (exception instanceof HttpClientErrorException.BadRequest) {
             log.error(exception.getMessage());
-            throw new UsernameNotFoundException(ErrorMessageEnum.USER_NOT_FOUND.getMessage().formatted(login, "http://localhost:8081/sign-up"));
+            throw new UsernameNotFoundException(ErrorMessageEnum.USER_NOT_FOUND.getMessage().formatted(login, "/sign-up"));
         } else {
             log.error(exception.getMessage());
             throw new UsernameNotFoundException(ErrorMessageEnum.SERVICE_ERROR.getMessage());

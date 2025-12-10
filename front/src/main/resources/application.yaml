@@ -1,12 +1,136 @@
+server:
+  port: 8081
+  forward-headers-strategy: framework
+  tomcat:
+    remoteip:
+      remote-ip-header: x-forwarded-for
+      protocol-header: x-forwarded-proto
+      host-header: x-forwarded-host
+      port-header: x-forwarded-port
+      internal-proxies: 10\.0\.0\.0/8|192\.168\.0\.0/16|172\.16\.0\.0/12
+
 spring:
   application:
-    name: front-service
-  cloud:
-    config:
-      fail-fast: true
-      retry:
-        initial-interval: 3000
-        multiplier: 1.3
-        max-interval: 10000
-  config:
-    import: configserver:http://localhost:8080
+    name: front
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: ${SPRING_SECURITY_OAUTH2_PROVIDER_ISSUER_URI:http://localhost:9090/realms/master}
+        registration:
+          account-client:
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: account_client
+            client-secret: ${ACCOUNT_CLIENT_SECRET:cuqu6hPnGUhwcFlDijZLCYDZ8HuQJB4s}
+            scope: profile
+            clientAuthenticationMethod: client_secret_post
+          cash-client:
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: cash_client
+            client-secret: ${CASH_CLIENT_SECRET:lIIF4SDSTlxvpZK4RfDwwgBDgiW3NNbU}
+            scope: profile
+            clientAuthenticationMethod: client_secret_post
+          transfer-client:
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: transfer_client
+            client-secret: ${TRANSFER_CLIENT_SECRET:izeEdZjAqR6gbTF2HtdUmQfXgQj0mRMf}
+            scope: profile
+            clientAuthenticationMethod: client_secret_post
+
+resilience4j:
+  circuitbreaker:
+    circuitBreakerAspectOrder: 1
+    configs:
+      default:
+        slidingWindowSize: 20
+        minimum-number-of-calls: 3
+        permitted-number-of-calls-in-half-open-state: 5
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: 2s
+        wait-duration-in-open-state: 10s
+        max-wait-duration-in-half-open-state: 5s
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - java.lang.Throwable
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+    instances:
+      accountService:
+        base-config: default
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.client.HttpClientErrorException$UnprocessableEntity
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.client.HttpClientErrorException
+      cashService:
+        base-config: default
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.client.HttpClientErrorException$UnprocessableEntity
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.client.HttpClientErrorException
+      transferService:
+        base-config: default
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.client.HttpClientErrorException$UnprocessableEntity
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.client.HttpClientErrorException
+  retry:
+    retryAspectOrder: 2
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 1s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        max-wait-duration: 5s
+        retry-exceptions:
+          - java.lang.Throwable
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+    instances:
+      accountService:
+        base-config: default
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.client.HttpClientErrorException$UnprocessableEntity
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.client.HttpClientErrorException
+      cashService:
+        base-config: default
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.client.HttpClientErrorException$UnprocessableEntity
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.client.HttpClientErrorException
+      transferService:
+        base-config: default
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.client.HttpClientErrorException$UnprocessableEntity
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.client.HttpClientErrorException
+urls:
+  account:
+    get:
+      account: ${ACCOUNT_GET_ACCOUNT_URL:http://localhost:8082/account?login={login}}
+      full: ${ACCOUNT_FULL_ACCOUNT_URL:http://localhost:8082/account/full?login={login}}
+    create: ${ACCOUNT_CREATE_URL:http://localhost:8082/account}
+    balance: ${ACCOUNT_GET_BALANCE_URL:http://localhost:8082/account/balance}
+    patch:
+      password: ${ACCOUNT_PATCH_PASSWORD_URL:http://localhost:8082/account/password}
+      info: ${ACCOUNT_PATCH_INFO_URL:http://localhost:8082/account/info}
+  cash: ${CASH_URL:http://localhost:8083/cash}
+  transfer:
+    patch: ${TRANSFER_PATCH_URL:http://localhost:8084/transfer/transfer}
+    get: ${TRANSFER_GET_URL:http://localhost:8084/transfer/exchange}

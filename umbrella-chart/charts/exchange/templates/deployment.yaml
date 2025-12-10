@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+# Метаданные объекта
+metadata:
+  # Имя Deployment. Уникальное в namespace, используется в командах kubectl
+  name: {{ include "exchange.name" . }}
+  # Метки для организации и выборки объектов
+  labels:
+    # Стандартная метка для идентификации приложения
+    app: {{ include "exchange.name" . }}
+# Спецификация - описывает желаемое состояние
+spec:
+  # Количество реплик (копий) приложения
+  replicas: {{ .Values.replicaCount }}
+  # Селектор - определяет какие поды управляются этим Deployment
+  selector:
+    # Ищет поды с метками, которые соответствуют этим
+    matchLabels:
+      # Будет управлять всными подами с этой меткой
+      app: {{ include "exchange.name" . }}
+  # Шаблон для создания новых подов
+  template:
+    # Метаданные создаваемых подов
+    metadata:
+      # Метки, которые будут присвоены создаваемым подам
+      labels:
+        # ЭТА МЕТКА ДОЛЖНА СОВПАДАТЬ С SELECTOR!
+        app: {{ include "exchange.name" . }}
+    # Спецификация контейнеров внутри пода
+    spec:
+      # Список контейнеров в поде (можно несколько)
+      containers:
+        # Имя контейнера внутри пода (для логирования, мониторинга)
+        - name: {{ include "exchange.name" . }}
+          # Docker образ для контейнера
+          image: "{{ include "exchange.name" . }}:{{ .Values.image.tag }}"
+          # Или IfNotPresent если сначала хотим поискать в удаленном
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # Порт из конфига: server.port
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          # Ссылается на переменные окружения в которых name равно данному имени
+          envFrom:
+            - configMapRef:
+                name: {{ include "exchange.name" . }}
+          # Для получения секретов
+          env:
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                # Ссылается на Секреты
+                secretKeyRef:
+                  name: {{ include "exchange.name" . }}
+                  key: password

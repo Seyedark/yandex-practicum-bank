@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  # Имя Service. Используется для DNS внутри кластера
+  name: {{ include "postgres.name" . }}
+spec:
+  # Тип Service (Используется None т.к. Stateful)
+  clusterIP: {{ .Values.service.type }}
+  ports:
+      - port: {{ .Values.service.port }}
+      # Порт контейнера, на который перенаправляется трафик
+        targetPort: {{ .Values.service.port }}
+  selector:
+    # Ищет поды с этой меткой
+    # Важно: должна совпадать с метками подов из Stateful!
+    app: {{ include "postgres.name" . }}

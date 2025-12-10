@@ -1,0 +1,18 @@
+apiVersion: v2
+# Имя чарта
+# Используется в командах: helm install notification.
+name: notification
+# Описание чарта
+# Поясняет, что делает этот чарт
+description: Helm chart for the Notification microservice
+# Тип чарта
+# Возможные значения: application или library
+# application - развертываемое приложение
+# library - библиотека (шаблоны для повторного использования)
+type: application
+# Версия чарта
+# При изменениях в шаблонах нужно увеличивать версию
+version: 0.1.0
+# Версия приложения
+# Отдельно от версии чарта, можно обновлять независимо
+appVersion: "1.0.0" 

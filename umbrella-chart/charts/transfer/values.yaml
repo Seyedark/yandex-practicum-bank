@@ -1,0 +1,29 @@
+replicaCount: 1
+
+image:
+  tag: "latest"
+  pullPolicy: Never
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8084
+
+config:
+  database_url: "jdbc:postgresql://postgres-0.postgres:5432/postgres?currentSchema=transfer"
+  data_base_fly_way_url: "jdbc:postgresql://postgres-0.postgres:5432/postgres"
+  database_username: "postgres"
+  database_password: "postgres"
+  keycloak_url: "http://keycloak/keycloak/realms/master"
+  notification_url: "http://notification/notification/email"
+  blocker_url: "http://blocker/blocker/block"
+  account_get_account_url: "http://account/account?login={login}"
+  account_get_transfer_url: "http://account/account/transfer?loginFrom={loginFrom}&loginTo={loginTo}&currencyTo={currencyTo}&currencyFrom={currencyFrom}"
+  account_patch_balance_url: "http://account/account/balance"
+  account_patch_transfer_url: "http://account/account/transfer"
+  exchange_exchange_url: "http://exchange/exchange/exchange"
+  exchange_convert_url: "http://exchange/exchange/convert"
+  blocker_client_secret: "c81Y8FXddFGEQOchrQpmEzUyExFWybPM"
+  notification_client_secret: "XtBb8sXukFDmUQgYGJWd6mylwfFxyUw0"
+  account_client_secret: "cuqu6hPnGUhwcFlDijZLCYDZ8HuQJB4s"
+  exchange_client_secret: "d2BXJ8UKxrdbF8TybLsZp0vsIGXCwt8Y"

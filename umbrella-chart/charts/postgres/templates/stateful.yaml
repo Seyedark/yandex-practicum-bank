@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+# Метаданные объекта
+metadata:
+  # Имя StatefulSet. Уникальное в namespace, используется в командах kubectl
+  name: {{ include "postgres.name" . }}
+spec:
+  serviceName: {{ include "postgres.name" . }}
+  # Количество реплик (копий) приложения
+  replicas: {{ .Values.replicaCount }}
+  # Селектор - определяет какие поды управляются этим Deployment
+  selector:
+    # Ищет поды с метками, которые соответствуют этим
+    matchLabels:
+      # Будет управлять всными подами с этой меткой
+      app: {{ include "postgres.name" . }}
+  # Шаблон для создания новых подов
+  template:
+    # Метаданные создаваемых подов
+    metadata:
+      # Метки, которые будут присвоены создаваемым подам
+      labels:
+        # ЭТА МЕТКА ДОЛЖНА СОВПАДАТЬ С SELECTOR!
+        app: {{ include "postgres.name" . }}
+    # Спецификация контейнеров внутри пода
+    spec:
+      containers:
+        # Имя контейнера внутри пода (для логирования, мониторинга)
+        - name: {{ include "postgres.name" . }}
+          # Docker образ для контейнера
+          image: "{{ include "postgres.name" . }}:{{ .Values.image.tag }}"
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                # Ссылается на Секреты
+                secretKeyRef:
+                  name: {{ include "postgres.name" . }}
+                  key: password
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
+          # Порт из конфига: server.port
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          volumeMounts:
+            - name: {{ include "postgres.name" . }}
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "postgres.name" . }}
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 500Mi

@@ -1,0 +1,25 @@
+replicaCount: 1
+
+image:
+  tag: "latest"
+  pullPolicy: Never
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8081
+
+config:
+  keycloak_url: "http://keycloak/keycloak/realms/master"
+  account_get_account_url: "http://account/account?login={login}"
+  account_full_account_url: "http://account/account/full?login={login}"
+  account_create_url: "http://account/account"
+  account_get_balance_url: "http://account/account/balance"
+  account_patch_password_url: "http://account/account/password"
+  account_patch_info_url: "http://account/account/info"
+  cash_url: "http://cash/cash"
+  transfer_patch_url: "http://transfer/transfer/transfer"
+  transfer_get_url: "http://transfer/transfer/exchange"
+  account_client_secret: "cuqu6hPnGUhwcFlDijZLCYDZ8HuQJB4s"
+  cash_client_secret: "lIIF4SDSTlxvpZK4RfDwwgBDgiW3NNbU"
+  transfer_client_secret: "izeEdZjAqR6gbTF2HtdUmQfXgQj0mRMf"

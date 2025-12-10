@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # Имя ConfigMap - используется для ссылки
+  name: {{ include "front.name" . }}
+  # Метки для организации (опционально)
+  labels:
+    app: {{ include "front.name" . }}
+data:
+  #Quote нужен для экранирования
+  SPRING_SECURITY_OAUTH2_PROVIDER_ISSUER_URI: {{ .Values.config.keycloak_url | quote }}
+  ACCOUNT_GET_ACCOUNT_URL: {{ .Values.config.account_get_account_url | quote }}
+  ACCOUNT_FULL_ACCOUNT_URL: {{ .Values.config.account_full_account_url | quote }}
+  ACCOUNT_CREATE_URL: {{ .Values.config.account_create_url | quote }}
+  ACCOUNT_GET_BALANCE_URL: {{ .Values.config.account_get_balance_url | quote }}
+  ACCOUNT_PATCH_PASSWORD_URL: {{ .Values.config.account_patch_password_url | quote }}
+  ACCOUNT_PATCH_INFO_URL: {{ .Values.config.account_patch_info_url | quote }}
+  CASH_URL: {{ .Values.config.cash_url | quote }}
+  TRANSFER_PATCH_URL: {{ .Values.config.transfer_patch_url | quote }}
+  TRANSFER_GET_URL: {{ .Values.config.transfer_get_url | quote }}

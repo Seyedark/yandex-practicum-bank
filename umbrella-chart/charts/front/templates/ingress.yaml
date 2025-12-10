@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "front.name" . }}
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    # Передаем заголовки от прокси
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    # Явно устанавливаем host с портом
+    #nginx.ingress.kubernetes.io/host-header: "$host:$server_port"
+    nginx.ingress.kubernetes.io/proxy-set-headers: "true"
+
+spec:
+  ingressClassName: nginx
+  rules:
+    # Вариант A: Без host (рекомендуется для тестов)
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "front.name" . }}
+                port:
+                  number: {{ .Values.service.port }}

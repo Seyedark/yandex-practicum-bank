@@ -1,0 +1,36 @@
+apiVersion: v2
+name: umbrella-chart
+description: An umbrella Helm chart to deploy all services
+version: 1.0.0
+dependencies:
+    #Имена должны совпадать с именем чарта внутри папок
+  - name: notification
+    version: "0.1.0"
+    repository: "file://charts/notification"
+  - name: postgres
+    version: "0.1.0"
+    repository: "file://charts/postgres"
+  - name: keycloak
+    version: "0.1.0"
+    repository: "file://charts/keycloak"
+  - name: blocker
+    version: "0.1.0"
+    repository: "file://charts/blocker"
+  - name: exchange
+    version: "0.1.0"
+    repository: "file://charts/exchange"
+  - name: generator
+    version: "0.1.0"
+    repository: "file://charts/generator"
+  - name: account
+    version: "0.1.0"
+    repository: "file://charts/account"
+  - name: cash
+    version: "0.1.0"
+    repository: "file://charts/cash"
+  - name: transfer
+    version: "0.1.0"
+    repository: "file://charts/transfer"
+  - name: front
+    version: "0.1.0"
+    repository: "file://charts/front"

@@ -1,15 +1,6 @@
+server:
+  port: 8082
 spring:
-  cloud:
-    # Отключаем Config Server
-    config:
-      enabled: false
-    # Отключаем авторегистрацию в эрике
-    service-registry:
-      auto-registration:
-        enabled: false
-  config:
-    import: optional:configserver:http://localhost:9999
-
   # Отключаем Flyway
   flyway:
     enabled: false
