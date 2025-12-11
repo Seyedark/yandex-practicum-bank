@@ -17,8 +17,6 @@
 
     <!--    Порядок сборки менять нельзя-->
     <modules>
-        <module>eureka</module>
-        <module>config</module>
         <module>notification</module>
         <module>exchange</module>
         <module>blocker</module>
