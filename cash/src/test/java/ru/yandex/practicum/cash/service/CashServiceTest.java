@@ -12,13 +12,14 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import ru.yandex.practicum.cash.SpringBootPostgreSQLBase;
 import ru.yandex.practicum.cash.TestSecurityConfig;
 import ru.yandex.practicum.cash.dao.repository.NotificationRepository;
-import ru.yandex.practicum.cash.dto.AccountDto;
+import ru.yandex.practicum.cash.dto.BalanceDto;
+import ru.yandex.practicum.cash.dto.BlockDto;
 import ru.yandex.practicum.cash.dto.ChangeAccountBalanceFrontRequestDto;
 import ru.yandex.practicum.cash.enums.ActionEnum;
+import ru.yandex.practicum.cash.enums.CurrencyEnum;
 import ru.yandex.practicum.cash.exception.CashCustomException;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,24 +52,23 @@ public class CashServiceTest extends SpringBootPostgreSQLBase {
     @Test
     @DisplayName("Успешное зачисление")
     void changeAccountBalanceAccrualSuccess() {
-        AccountDto accountDto = new AccountDto();
-        accountDto.setLogin("login");
-        accountDto.setFirstName("Тест");
-        accountDto.setLastName("Тестов");
-        accountDto.setEmail("test@mail.ru");
-        accountDto.setBirthDate(LocalDate.now().minusYears(20));
-        accountDto.setPassword("12345");
-        accountDto.setBalance(BigDecimal.ZERO);
+        BalanceDto balanceDto = new BalanceDto();
+        balanceDto.setBalance(BigDecimal.ZERO);
+        balanceDto.setEmail("test@mail.ru");
 
         ChangeAccountBalanceFrontRequestDto changeAccountBalanceFrontRequestDto = new ChangeAccountBalanceFrontRequestDto();
         changeAccountBalanceFrontRequestDto.setLogin("login");
+        changeAccountBalanceFrontRequestDto.setCurrency(CurrencyEnum.RUB.name());
         changeAccountBalanceFrontRequestDto.setChangeAmount(BigDecimal.ONE);
         changeAccountBalanceFrontRequestDto.setActionEnum(ActionEnum.ACCRUAL);
 
-        when(restCallerService.getAccount(changeAccountBalanceFrontRequestDto.getLogin())).thenReturn(accountDto);
+        BlockDto blockDto = new BlockDto();
+        blockDto.setBlocked(false);
+
+        when(restCallerService.getBlock()).thenReturn(blockDto);
+        when(restCallerService.getBalance(changeAccountBalanceFrontRequestDto.getLogin(), changeAccountBalanceFrontRequestDto.getCurrency())).thenReturn(balanceDto);
 
         cashService.changeAccountBalance(changeAccountBalanceFrontRequestDto);
-
 
         verify(restCallerService, times(1)).changeBalance(any());
         verify(notificationRepository, times(1)).save(any());
@@ -77,24 +77,22 @@ public class CashServiceTest extends SpringBootPostgreSQLBase {
     @Test
     @DisplayName("Успешное списание")
     void changeAccountBalanceWriteOffSuccess() {
-        AccountDto accountDto = new AccountDto();
-        accountDto.setLogin("login");
-        accountDto.setFirstName("Тест");
-        accountDto.setLastName("Тестов");
-        accountDto.setEmail("test@mail.ru");
-        accountDto.setBirthDate(LocalDate.now().minusYears(20));
-        accountDto.setPassword("12345");
-        accountDto.setBalance(BigDecimal.ONE);
+        BalanceDto balanceDto = new BalanceDto();
+        balanceDto.setBalance(BigDecimal.ONE);
+        balanceDto.setEmail("test@mail.ru");
 
         ChangeAccountBalanceFrontRequestDto changeAccountBalanceFrontRequestDto = new ChangeAccountBalanceFrontRequestDto();
         changeAccountBalanceFrontRequestDto.setLogin("login");
+        changeAccountBalanceFrontRequestDto.setCurrency(CurrencyEnum.RUB.name());
         changeAccountBalanceFrontRequestDto.setChangeAmount(BigDecimal.ONE);
         changeAccountBalanceFrontRequestDto.setActionEnum(ActionEnum.WRITE_OFF);
+        BlockDto blockDto = new BlockDto();
+        blockDto.setBlocked(false);
 
-        when(restCallerService.getAccount(changeAccountBalanceFrontRequestDto.getLogin())).thenReturn(accountDto);
+        when(restCallerService.getBlock()).thenReturn(blockDto);
+        when(restCallerService.getBalance(changeAccountBalanceFrontRequestDto.getLogin(), changeAccountBalanceFrontRequestDto.getCurrency())).thenReturn(balanceDto);
 
         cashService.changeAccountBalance(changeAccountBalanceFrontRequestDto);
-
 
         verify(restCallerService, times(1)).changeBalance(any());
         verify(notificationRepository, times(1)).save(any());
@@ -103,23 +101,22 @@ public class CashServiceTest extends SpringBootPostgreSQLBase {
     @Test
     @DisplayName("Ошибка списания")
     void changeAccountBalanceWriteOffFail() {
-        AccountDto accountDto = new AccountDto();
-        accountDto.setLogin("login");
-        accountDto.setFirstName("Тест");
-        accountDto.setLastName("Тестов");
-        accountDto.setEmail("test@mail.ru");
-        accountDto.setBirthDate(LocalDate.now().minusYears(20));
-        accountDto.setPassword("12345");
-        accountDto.setBalance(BigDecimal.ZERO);
+        BalanceDto balanceDto = new BalanceDto();
+        balanceDto.setBalance(BigDecimal.ZERO);
+        balanceDto.setEmail("test@mail.ru");
 
         ChangeAccountBalanceFrontRequestDto changeAccountBalanceFrontRequestDto = new ChangeAccountBalanceFrontRequestDto();
         changeAccountBalanceFrontRequestDto.setLogin("login");
+        changeAccountBalanceFrontRequestDto.setCurrency(CurrencyEnum.RUB.name());
         changeAccountBalanceFrontRequestDto.setChangeAmount(BigDecimal.ONE);
         changeAccountBalanceFrontRequestDto.setActionEnum(ActionEnum.WRITE_OFF);
+        BlockDto blockDto = new BlockDto();
+        blockDto.setBlocked(false);
 
-        when(restCallerService.getAccount(changeAccountBalanceFrontRequestDto.getLogin())).thenReturn(accountDto);
+        when(restCallerService.getBlock()).thenReturn(blockDto);
+        when(restCallerService.getBalance(changeAccountBalanceFrontRequestDto.getLogin(), changeAccountBalanceFrontRequestDto.getCurrency())).thenReturn(balanceDto);
 
-        assertThatThrownBy(() ->  cashService.changeAccountBalance(changeAccountBalanceFrontRequestDto))
+        assertThatThrownBy(() -> cashService.changeAccountBalance(changeAccountBalanceFrontRequestDto))
                 .isInstanceOf(CashCustomException.class);
     }
 }

@@ -46,6 +46,7 @@ public class FrontControllerTest {
     private final String TEST_LAST_NAME = "Тестов";
     private final String TEST_EMAIL = "test@mail.ru";
     private final String TEST_BIRTHDATE = "1990-01-01";
+    private final String TEST_CURRENCY = "RUB";
 
 
     @Test
@@ -59,6 +60,7 @@ public class FrontControllerTest {
         accountDto.setLastName(TEST_LAST_NAME);
         accountDto.setBirthDate(LocalDate.parse(TEST_BIRTHDATE));
         accountDto.setShortAccountDtoList(new ArrayList<>());
+        accountDto.setAccountBalanceDtoList(new ArrayList<>());
 
         when(accountService.getAccountWithAllUsers(TEST_LOGIN)).thenReturn(accountDto);
 
@@ -66,7 +68,7 @@ public class FrontControllerTest {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("main"))
-                .andExpect(model().attribute("login", TEST_EMAIL))
+                .andExpect(model().attribute("login", TEST_LOGIN))
                 .andExpect(model().attribute("firstName", TEST_FIRST_NAME))
                 .andExpect(model().attribute("lastName", TEST_LAST_NAME))
                 .andExpect(model().attribute("birthdate", LocalDate.parse(TEST_BIRTHDATE)));
@@ -85,7 +87,7 @@ public class FrontControllerTest {
     @Test
     @WithMockUser(username = TEST_LOGIN)
     @DisplayName("Успешное создание пользователя")
-    void createAccountTestWithRedirect() throws Exception {
+    void createAccountTestWithRedirectTest() throws Exception {
         when(accountService.createAccount(anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString()))
                 .thenReturn(Collections.emptyList());
@@ -104,7 +106,7 @@ public class FrontControllerTest {
     @Test
     @WithMockUser(username = TEST_LOGIN)
     @DisplayName("Создание пользователя с ошибкой")
-    void createAccountTestWithErrors() throws Exception {
+    void createAccountTestWithErrorsTest() throws Exception {
         List<String> errorList = Arrays.asList(ErrorMessageEnum.SERVICE_ERROR.getMessage());
         when(accountService.createAccount(anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString()))
@@ -133,7 +135,7 @@ public class FrontControllerTest {
     @Test
     @WithMockUser(username = TEST_LOGIN)
     @DisplayName("Успешная смена пароля")
-    void changePasswordSuccess() throws Exception {
+    void changePasswordSuccessTest() throws Exception {
         when(accountService.changePassword(TEST_LOGIN, TEST_PASSWORD + 1))
                 .thenReturn(Collections.emptyList());
 
@@ -148,7 +150,7 @@ public class FrontControllerTest {
     @Test
     @WithMockUser(username = TEST_LOGIN)
     @DisplayName("Смена пароля с ошибкой")
-    void changePasswordWithErrors() throws Exception {
+    void changePasswordWithErrorsTest() throws Exception {
         List<String> errorList = Arrays.asList("Длина пароля должна быть больше 3 символов");
         when(accountService.changePassword(TEST_LOGIN, "123"))
                 .thenReturn(errorList);
@@ -164,7 +166,7 @@ public class FrontControllerTest {
     @Test
     @WithMockUser(username = TEST_LOGIN)
     @DisplayName("Успешная смена данных пользователя")
-    void changeInfoSuccess() throws Exception {
+    void changeInfoSuccessTest() throws Exception {
         when(accountService.changeInfo(TEST_LOGIN, TEST_FIRST_NAME + 1, TEST_LAST_NAME + 1, TEST_BIRTHDATE))
                 .thenReturn(Collections.emptyList());
 
@@ -181,14 +183,15 @@ public class FrontControllerTest {
     @Test
     @WithMockUser(username = TEST_LOGIN)
     @DisplayName("Успешное изменение баланса")
-    void changeAccountBalanceSuccess() throws Exception {
-        when(cashService.changeAccountBalance(TEST_LOGIN, ActionEnum.ACCRUAL, BigDecimal.ONE))
+    void changeAccountBalanceSuccessTest() throws Exception {
+        when(cashService.changeAccountBalance(TEST_LOGIN, ActionEnum.ACCRUAL, BigDecimal.ONE, TEST_CURRENCY))
                 .thenReturn(Collections.emptyList());
 
         mockMvc.perform(post("/account/balance")
                         .with(csrf())
                         .param("action", ActionEnum.ACCRUAL.name())
-                        .param("balance", BigDecimal.ONE.toString()))
+                        .param("balance", BigDecimal.ONE.toString())
+                        .param("currency", TEST_CURRENCY))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
                 .andExpect(flash().attributeExists("errorBalanceList"));
@@ -197,16 +200,32 @@ public class FrontControllerTest {
     @Test
     @WithMockUser(username = TEST_LOGIN)
     @DisplayName("Успешный перевод")
-    void transfer_WithValidData_ShouldRedirectWithSuccess() throws Exception {
-        when(transferService.transfer(TEST_LOGIN, TEST_LOGIN + 1, BigDecimal.ONE))
+    void transferSuccessTest() throws Exception {
+        when(transferService.transfer(TEST_LOGIN, TEST_LOGIN + 1, BigDecimal.ONE, TEST_CURRENCY, TEST_CURRENCY))
                 .thenReturn(Collections.emptyList());
 
         mockMvc.perform(post("/account/transfer")
                         .with(csrf())
                         .param("loginTo", TEST_LOGIN + 1)
-                        .param("transferAmount", BigDecimal.ONE.toString()))
+                        .param("transferAmount", BigDecimal.ONE.toString())
+                        .param("currencyFrom", TEST_CURRENCY)
+                        .param("currencyTo", TEST_CURRENCY))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
+    }
+
+    @Test
+    @WithMockUser(username = TEST_LOGIN)
+    @DisplayName("Успешный перевод")
+    void createNewBalanceSuccessTest() throws Exception {
+        when(accountService.createNewBalance(TEST_LOGIN, TEST_CURRENCY))
+                .thenReturn(Collections.emptyList());
+
+        mockMvc.perform(post("/account/create-balance")
+                        .with(csrf())
+                        .param("newCurrency", TEST_CURRENCY))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
-                .andExpect(flash().attributeExists("errorTransferList"));
+                .andExpect(flash().attributeExists("errorCurrencyList"));
     }
 }

@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ErrorMessageEnum {
-    USER_NOT_FOUND("Пользователь c логином %s не найден.\n Можно зарегистрироваться по адресу %s"),
+    USER_NOT_FOUND("Пользователь c логином %s не найден.\n Можно зарегистрироваться по пути %s"),
     SERVICE_ERROR("Ошибка в работе сервиса. Просьба повторить запрос позднее");
     private final String message;
 }

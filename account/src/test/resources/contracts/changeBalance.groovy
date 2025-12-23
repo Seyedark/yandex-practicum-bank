@@ -10,7 +10,8 @@ Contract.make {
         }
         body([
                 login  : "login",
-                balance: 1
+                balance: 1,
+                currency: "RUB"
         ])
     }
     response {

@@ -2,12 +2,12 @@ package ru.yandex.practicum.cash.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.cash.dao.entity.NotificationEntity;
 import ru.yandex.practicum.cash.dao.repository.NotificationRepository;
-import ru.yandex.practicum.cash.dto.AccountDto;
+import ru.yandex.practicum.cash.dto.BalanceDto;
+import ru.yandex.practicum.cash.dto.BlockDto;
 import ru.yandex.practicum.cash.dto.ChangeAccountBalanceFrontRequestDto;
 import ru.yandex.practicum.cash.dto.ChangeAccountBalanceRequestDto;
 import ru.yandex.practicum.cash.enums.ActionEnum;
@@ -29,28 +29,37 @@ public class CashService {
 
     @Transactional
     public void changeAccountBalance(ChangeAccountBalanceFrontRequestDto changeAccountBalanceFrontRequestDto) {
-        AccountDto accountDto = restCallerService.getAccount(changeAccountBalanceFrontRequestDto.getLogin());
+        BlockDto blockDto = restCallerService.getBlock();
+        if (blockDto.isBlocked()) {
+            List<String> errorTypeList = new ArrayList<>();
+            errorTypeList.add(CashErrorEnum.BLOCK_ERROR.getMessage());
+            throw new CashCustomException(errorTypeList);
+        }
+        BalanceDto balanceDto = restCallerService.getBalance(changeAccountBalanceFrontRequestDto.getLogin(),
+                changeAccountBalanceFrontRequestDto.getCurrency());
         NotificationEntity notificationEntity = new NotificationEntity();
 
-        notificationEntity.setEmail(accountDto.getEmail());
+        notificationEntity.setEmail(balanceDto.getEmail());
         notificationEntity.setNotificationSent(false);
         if (changeAccountBalanceFrontRequestDto.getActionEnum().equals(ActionEnum.ACCRUAL)) {
             notificationEntity.setMessage(MessageEnum.ACCRUAL.getMessage().formatted(changeAccountBalanceFrontRequestDto.getChangeAmount()));
             notificationRepository.save(notificationEntity);
 
             ChangeAccountBalanceRequestDto changeAccountBalanceRequestDto = new ChangeAccountBalanceRequestDto();
-            changeAccountBalanceRequestDto.setLogin(accountDto.getLogin());
-            changeAccountBalanceRequestDto.setBalance(changeAccountBalanceFrontRequestDto.getChangeAmount());
+            changeAccountBalanceRequestDto.setLogin(changeAccountBalanceFrontRequestDto.getLogin());
+            changeAccountBalanceRequestDto.setCurrency(changeAccountBalanceFrontRequestDto.getCurrency());
+            changeAccountBalanceRequestDto.setBalance(balanceDto.getBalance().add(changeAccountBalanceFrontRequestDto.getChangeAmount()));
 
             restCallerService.changeBalance(changeAccountBalanceRequestDto);
         } else {
-            if (checkBalance(accountDto.getBalance(), changeAccountBalanceFrontRequestDto.getChangeAmount())) {
+            if (checkBalance(balanceDto.getBalance(), changeAccountBalanceFrontRequestDto.getChangeAmount())) {
                 notificationEntity.setMessage(MessageEnum.WRITE_OFF.getMessage().formatted(changeAccountBalanceFrontRequestDto.getChangeAmount()));
                 notificationRepository.save(notificationEntity);
 
                 ChangeAccountBalanceRequestDto changeAccountBalanceRequestDto = new ChangeAccountBalanceRequestDto();
-                changeAccountBalanceRequestDto.setLogin(accountDto.getLogin());
-                changeAccountBalanceRequestDto.setBalance(accountDto.getBalance()
+                changeAccountBalanceRequestDto.setLogin(changeAccountBalanceFrontRequestDto.getLogin());
+                changeAccountBalanceRequestDto.setCurrency(changeAccountBalanceFrontRequestDto.getCurrency());
+                changeAccountBalanceRequestDto.setBalance(balanceDto.getBalance()
                         .subtract(changeAccountBalanceFrontRequestDto.getChangeAmount()));
 
                 restCallerService.changeBalance(changeAccountBalanceRequestDto);
@@ -58,7 +67,7 @@ public class CashService {
                 List<String> errorTypeList = new ArrayList<>();
                 errorTypeList.add(CashErrorEnum.BALANCE_ERROR.getMessage()
                         .formatted(changeAccountBalanceFrontRequestDto.getChangeAmount(),
-                                accountDto.getBalance()));
+                                balanceDto.getBalance()));
                 throw new CashCustomException(errorTypeList);
             }
         }

@@ -40,9 +40,6 @@ public class AccountEntity {
     @Column
     String password;
 
-    @Column
-    BigDecimal balance;
-
     @CreationTimestamp
     @Column(name = "created_at")
     LocalDateTime createdAt;
@@ -54,4 +51,8 @@ public class AccountEntity {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "account_id")
     List<NotificationEntity> notifications = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "account_id")
+    List<AccountBalanceEntity> accountBalances = new ArrayList<>();
 }

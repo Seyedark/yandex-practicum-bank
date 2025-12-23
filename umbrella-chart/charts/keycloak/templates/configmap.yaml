@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # Имя ConfigMap - используется для ссылки
+  name: {{ include "keycloak.name" . }}
+data:
+  KEYCLOAK_ADMIN: {{ .Values.config.keycloak_admin | quote}}
+  KEYCLOAK_ADMIN_PASSWORD: {{ .Values.config.keycloak_admin_password | quote}}
+  KC_HOSTNAME_STRICT: {{ .Values.config.kc_hostname_strict | quote}}
+  KC_HOSTNAME_STRICT_HTTPS: {{ .Values.config.kc_hostname_strict_https | quote}}
+  KC_HTTP_RELATIVE_PATH: {{ .Values.config.kc_http_relative_path | quote }}

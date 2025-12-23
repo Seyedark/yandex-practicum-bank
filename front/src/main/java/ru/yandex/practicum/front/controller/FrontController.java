@@ -1,6 +1,7 @@
 package ru.yandex.practicum.front.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -10,14 +11,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.yandex.practicum.front.dto.AccountWithUsersDto;
+import ru.yandex.practicum.front.dto.ExchangeDto;
 import ru.yandex.practicum.front.enums.ActionEnum;
+import ru.yandex.practicum.front.enums.CurrencyEnum;
 import ru.yandex.practicum.front.service.AccountService;
 import ru.yandex.practicum.front.service.CashService;
 import ru.yandex.practicum.front.service.TransferService;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class FrontController {
@@ -29,12 +34,25 @@ public class FrontController {
     public String mainPage(@AuthenticationPrincipal UserDetails customUserDetails,
                            Model model) {
         AccountWithUsersDto accountWithUsersDto = accountService.getAccountWithAllUsers(customUserDetails.getUsername());
-        model.addAttribute("login", accountWithUsersDto.getEmail());
+        List<ExchangeDto> exchangeDtoList = transferService.getExchangeDtoList();
+        model.addAttribute("login", customUserDetails.getUsername());
         model.addAttribute("firstName", accountWithUsersDto.getFirstName());
         model.addAttribute("lastName", accountWithUsersDto.getLastName());
         model.addAttribute("birthdate", accountWithUsersDto.getBirthDate());
         model.addAttribute("usersList", accountWithUsersDto.getShortAccountDtoList());
+        model.addAttribute("currentAccountBalance", accountWithUsersDto.getAccountBalanceDtoList());
+        model.addAttribute("existingCurrency", CurrencyEnum.values());
+        model.addAttribute("exchangeDtoList", exchangeDtoList);
         return "main";
+    }
+
+    @PostMapping("/account/create-balance")
+    public String createNewBalance(@AuthenticationPrincipal UserDetails customUserDetails,
+                                   @RequestParam("newCurrency") String newCurrency,
+                                   RedirectAttributes redirectAttributes) {
+        List<String> errorList = accountService.createNewBalance(customUserDetails.getUsername(), newCurrency);
+        redirectAttributes.addFlashAttribute("errorCurrencyList", errorList);
+        return "redirect:/";
     }
 
     @GetMapping("/sign-up")
@@ -96,8 +114,9 @@ public class FrontController {
     public String changeAccountBalance(@AuthenticationPrincipal UserDetails customUserDetails,
                                        @RequestParam(name = "action") ActionEnum actionEnum,
                                        @RequestParam(name = "balance") BigDecimal balance,
+                                       @RequestParam(name = "currency") String currency,
                                        RedirectAttributes redirectAttributes) {
-        List<String> errorList = cashService.changeAccountBalance(customUserDetails.getUsername(), actionEnum, balance);
+        List<String> errorList = cashService.changeAccountBalance(customUserDetails.getUsername(), actionEnum, balance, currency);
         redirectAttributes.addFlashAttribute("errorBalanceList", errorList);
         return "redirect:/";
     }
@@ -106,9 +125,22 @@ public class FrontController {
     public String transfer(@AuthenticationPrincipal UserDetails customUserDetails,
                            @RequestParam(name = "loginTo") String loginTo,
                            @RequestParam(name = "transferAmount") BigDecimal transferAmount,
+                           @RequestParam(name = "currencyTo") String currencyTo,
+                           @RequestParam(name = "currencyFrom") String currencyFrom,
                            RedirectAttributes redirectAttributes) {
-        List<String> errorList = transferService.transfer(customUserDetails.getUsername(), loginTo, transferAmount);
-        redirectAttributes.addFlashAttribute("errorTransferList", errorList);
+        List<String> errorList;
+        if (loginTo.equals(customUserDetails.getUsername())) {
+            if (currencyTo.equals(currencyFrom)) {
+                errorList = new ArrayList<>();
+                errorList.add("Перевод между 1 и тем же счётом невозможен");
+            } else {
+                errorList = transferService.transfer(customUserDetails.getUsername(), loginTo, transferAmount, currencyTo, currencyFrom);
+            }
+            redirectAttributes.addFlashAttribute("errorSelfTransferList", errorList);
+        } else {
+            errorList = transferService.transfer(customUserDetails.getUsername(), loginTo, transferAmount, currencyTo, currencyFrom);
+            redirectAttributes.addFlashAttribute("errorTransferList", errorList);
+        }
         return "redirect:/";
     }
 }

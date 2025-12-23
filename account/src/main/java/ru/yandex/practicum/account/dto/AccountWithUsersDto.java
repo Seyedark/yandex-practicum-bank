@@ -17,6 +17,6 @@ public class AccountWithUsersDto {
     String lastName;
     String email;
     LocalDate birthDate;
-    BigDecimal balance;
+    List<AccountBalanceDto> accountBalanceDtoList;
     List<ShortAccountDto> shortAccountDtoList;
 }

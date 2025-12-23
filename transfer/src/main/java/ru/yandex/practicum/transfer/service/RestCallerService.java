@@ -5,6 +5,7 @@ import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -12,9 +13,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.transfer.dto.NotificationEmailRequestDto;
-import ru.yandex.practicum.transfer.dto.TransferAccountsDto;
-import ru.yandex.practicum.transfer.dto.TransferRequestDto;
+import ru.yandex.practicum.transfer.dto.*;
 import ru.yandex.practicum.transfer.enums.KeycloakEnum;
 
 import java.util.List;
@@ -32,16 +31,25 @@ public class RestCallerService {
     @Value("${urls.notification}")
     private String notificationUrl;
 
+    @Value("${urls.blocker}")
+    private String blockerUrl;
+
+    @Value("${urls.exchange.exchange}")
+    private String exchangeExchangeUrl;
+
+    @Value("${urls.exchange.convert}")
+    private String exchangeConvertUrl;
+
     private final RestTemplate restTemplate;
     private final OAuth2AuthorizedClientManager clientManager;
 
 
     @Retry(name = "transferService")
     @CircuitBreaker(name = "transferService", fallbackMethod = "fallbackGetTransferAccountsDto")
-    public TransferAccountsDto getTransferAccountsDto(String loginFrom, String loginTo) {
+    public TransferAccountsDto getTransferAccountsDto(String loginFrom, String loginTo, String currencyTo, String currencyFrom) {
         HttpEntity<Void> request = new HttpEntity<>(formHeadersWithToken(KeycloakEnum.ACCOUNT));
         ResponseEntity<TransferAccountsDto> response = restTemplate.exchange(getTransferAccountsUrl, HttpMethod.GET,
-                request, TransferAccountsDto.class, loginFrom, loginTo);
+                request, TransferAccountsDto.class, loginFrom, loginTo, currencyTo, currencyFrom);
         return response.getBody();
     }
 
@@ -61,6 +69,35 @@ public class RestCallerService {
         restTemplate.postForObject(notificationUrl, request, Void.class);
     }
 
+    @Retry(name = "blockerService")
+    @CircuitBreaker(name = "blockerService", fallbackMethod = "fallbackGetBlock")
+    public BlockDto getBlock() {
+        HttpEntity<Void> request = new HttpEntity<>(formHeadersWithToken(KeycloakEnum.BLOCKER));
+        ResponseEntity<BlockDto> response = restTemplate.exchange(blockerUrl, HttpMethod.GET, request,
+                BlockDto.class);
+        return response.getBody();
+    }
+
+    @Retry(name = "exchangeService")
+    @CircuitBreaker(name = "exchangeService", fallbackMethod = "fallbackGetExchangeDtoList")
+    public List<ExchangeDto> getExchangeDtoList() {
+        HttpEntity<Void> request = new HttpEntity<>(formHeadersWithToken(KeycloakEnum.EXCHANGE));
+        ResponseEntity<List<ExchangeDto>> response = restTemplate.exchange(exchangeExchangeUrl, HttpMethod.GET, request,
+                new ParameterizedTypeReference<>() {
+                });
+        return response.getBody();
+    }
+
+    @Retry(name = "exchangeService")
+    @CircuitBreaker(name = "exchangeService", fallbackMethod = "fallbackConvert")
+    public ConvertResponseDto convert(ConvertRequestDto convertRequestDto) {
+        HttpEntity<ConvertRequestDto> request =
+                new HttpEntity<>(convertRequestDto, formHeadersWithToken(KeycloakEnum.EXCHANGE));
+        ResponseEntity<ConvertResponseDto> response = restTemplate.postForEntity(exchangeConvertUrl, request,
+                ConvertResponseDto.class);
+        return response.getBody();
+    }
+
     private HttpHeaders formHeadersWithToken(KeycloakEnum keycloakEnum) {
         OAuth2AuthorizeRequest request = OAuth2AuthorizeRequest
                 .withClientRegistrationId(keycloakEnum.getClientId())
@@ -75,7 +112,7 @@ public class RestCallerService {
         return headers;
     }
 
-    private TransferAccountsDto fallbackGetTransferAccountsDto(String loginFrom, String loginTo, Exception exception) {
+    private TransferAccountsDto fallbackGetTransferAccountsDto(String loginFrom, String loginTo, String currencyTo, String currencyFrom, Exception exception) {
         defaultFallbackLogic(exception);
         return null;
     }
@@ -86,6 +123,21 @@ public class RestCallerService {
 
     private void fallbackSendNotifications(List<NotificationEmailRequestDto> notificationEmailRequestDtoList, Exception exception) {
         defaultFallbackLogic(exception);
+    }
+
+    private BlockDto fallbackGetBlock(Exception exception) {
+        defaultFallbackLogic(exception);
+        return null;
+    }
+
+    private List<ExchangeDto> fallbackGetExchangeDtoList(Exception exception) {
+        defaultFallbackLogic(exception);
+        return null;
+    }
+
+    private ConvertResponseDto fallbackConvert(ConvertRequestDto convertRequestDto, Exception exception) {
+        defaultFallbackLogic(exception);
+        return null;
     }
 
     private void defaultFallbackLogic(Exception exception) {

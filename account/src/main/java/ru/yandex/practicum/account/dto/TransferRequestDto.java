@@ -10,7 +10,9 @@ import java.math.BigDecimal;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TransferRequestDto {
     String loginFrom;
+    String currencyFrom;
     BigDecimal balanceFrom;
     String loginTo;
+    String currencyTo;
     BigDecimal balanceTo;
 }

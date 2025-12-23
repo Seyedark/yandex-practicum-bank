@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ChangeAccountBalanceFrontRequestDto {
     String login;
+    String currency;
     BigDecimal changeAmount;
     ActionEnum actionEnum;
 }

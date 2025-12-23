@@ -34,7 +34,9 @@ public class TransferServiceContractTest {
                 {
                 login  : "login",
                 changeAmount: 1,
-                actionEnum:  "ACCRUAL"
+                actionEnum:  "ACCRUAL",
+                currencyFrom: "RUB",
+                currencyTo  : "RUB"
                 }
                 """;
         HttpHeaders headers = new HttpHeaders();
@@ -43,10 +45,25 @@ public class TransferServiceContractTest {
         HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<Void> response = restTemplate.exchange(
-                "http://localhost:8080/transfer",
+                "http://localhost:8080/transfer/transfer",
                 HttpMethod.PATCH,
                 request,
                 Void.class
+        );
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void exchangeTest() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        ResponseEntity<String> response = new RestTemplate().exchange(
+                "http://localhost:8080/transfer/exchange",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                String.class
         );
 
         assertEquals(HttpStatus.OK, response.getStatusCode());

@@ -30,10 +30,11 @@ public class CashService {
 
     @Retry(name = "cashService")
     @CircuitBreaker(name = "cashService", fallbackMethod = "fallbackChangeAccountBalance")
-    public List<String> changeAccountBalance(String login, ActionEnum actionEnum, BigDecimal balance) {
+    public List<String> changeAccountBalance(String login, ActionEnum actionEnum, BigDecimal balance, String currency) {
         ChangeAccountBalanceFrontRequestDto changeAccountBalanceFrontRequestDto = new ChangeAccountBalanceFrontRequestDto();
         changeAccountBalanceFrontRequestDto.setLogin(login);
         changeAccountBalanceFrontRequestDto.setActionEnum(actionEnum);
+        changeAccountBalanceFrontRequestDto.setCurrency(currency);
         changeAccountBalanceFrontRequestDto.setChangeAmount(balance);
         HttpEntity<ChangeAccountBalanceFrontRequestDto> request =
                 new HttpEntity<>(changeAccountBalanceFrontRequestDto, oAuth2Service.formHeadersWithToken(KeycloakEnum.CASH));
@@ -41,7 +42,7 @@ public class CashService {
         return new ArrayList<>();
     }
 
-    public List<String> fallbackChangeAccountBalance(String login, ActionEnum actionEnum, BigDecimal balance, Exception exception) {
+    public List<String> fallbackChangeAccountBalance(String login, ActionEnum actionEnum, BigDecimal balance, String currency, Exception exception) {
         return fallbackProcessService.basicUnprocessableEntityFallback(exception);
     }
 }

@@ -7,7 +7,6 @@
         <artifactId>bank</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>ru.yandex.practicum</groupId>
     <artifactId>notification</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>notification</name>
@@ -15,10 +14,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -31,10 +26,6 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-jose</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.retry</groupId>

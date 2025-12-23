@@ -1,0 +1,16 @@
+replicaCount: 1
+
+image:
+  full: quay.io/keycloak/keycloak:26.1.3
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+config:
+  keycloak_admin: "admin"
+  keycloak_admin_password: "admin"
+  kc_hostname_strict: "false"
+  kc_hostname_strict_https: "false"
+  kc_http_relative_path: "/keycloak"

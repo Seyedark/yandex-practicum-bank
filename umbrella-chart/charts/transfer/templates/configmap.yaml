@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # Имя ConfigMap - используется для ссылки
+  name: {{ include "transfer.name" . }}
+  # Метки для организации (опционально)
+  labels:
+    app: {{ include "transfer.name" . }}
+data:
+  #Quote нужен для экранирования
+  SPRING_DATASOURCE_URL: {{ .Values.config.database_url | quote }}
+  SPRING_DATASOURCE_USERNAME: {{ .Values.config.database_username }}
+  SPRING_FLYWAY_URL: {{ .Values.config.data_base_fly_way_url | quote }}
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: {{ .Values.config.keycloak_url | quote }}
+  SPRING_SECURITY_OAUTH2_PROVIDER_ISSUER_URI: {{ .Values.config.keycloak_url | quote }}
+  NOTIFICATION_URL: {{ .Values.config.notification_url | quote }}
+  ACCOUNT_GET_ACCOUNT_URL: {{ .Values.config.account_get_account_url | quote }}
+  ACCOUNT_GET_TRANSFER_URL: {{ .Values.config.account_get_transfer_url | quote }}
+  ACCOUNT_PATCH_BALANCE_URL: {{ .Values.config.account_patch_balance_url | quote }}
+  ACCOUNT_PATCH_TRANSFER_URL: {{ .Values.config.account_patch_transfer_url | quote }}
+  BLOCKER_URL: {{ .Values.config.blocker_url | quote }}
+  EXCHANGE_EXCHANGE_URL: {{ .Values.config.exchange_exchange_url | quote }}
+  EXCHANGE_CONVERT_URL: {{ .Values.config.exchange_convert_url | quote }}

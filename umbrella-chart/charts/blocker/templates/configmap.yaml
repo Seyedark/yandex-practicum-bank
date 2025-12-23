@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # Имя ConfigMap - используется для ссылки
+  name: {{ include "blocker.name" . }}
+  # Метки для организации (опционально)
+  labels:
+    app: {{ include "blocker.name" . }}
+data:
+  #Quote нужен для экранирования
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: {{ .Values.config.keycloak_url | quote }}

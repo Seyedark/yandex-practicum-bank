@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  # Имя Service. Используется для DNS внутри кластера
+  name: {{ include "front.name" . }}
+spec:
+  # Тип Service (по умолчанию ClusterIP - только внутри кластера)
+  type: {{ .Values.service.type }}
+  ports:
+    - name: http  # Имя порта (опционально)
+      # Порт Service. Если указать 80, то при обращении из других сервисов
+      # можно использовать просто DNS имя без указания порта:
+      # http://service-name/...
+      #
+      # Если указать любой другой порт (например, 8085), то нужно указывать его явно:
+      # http://service-name:8085/...
+      port: {{ .Values.service.port }}
+      # Порт контейнера, на который перенаправляется трафик
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP
+
+  # Селектор - определяет к каким подам направлять трафик
+  selector:
+    # Ищет поды с этой меткой
+    # Важно: должна совпадать с метками подов из Deployment!
+    app: {{ include "front.name" . }}

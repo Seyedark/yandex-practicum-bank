@@ -19,12 +19,16 @@ Contract.make {
                 lastName           : "Тестов",
                 email              : "login@mail.ru",
                 "birthDate"        : "1990-01-01",
-                balance            : 1,
                 shortAccountDtoList: [
                         [
                                 login    : "login",
                                 firstName: "Тест1",
                                 lastName : "Тестов1",
+                        ]
+                ],
+                accountBalanceDtoList: [
+                        [
+                                currency: "RUB"
                         ]
                 ]
         ])

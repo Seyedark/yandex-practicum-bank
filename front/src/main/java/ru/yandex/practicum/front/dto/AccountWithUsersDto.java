@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -17,6 +16,6 @@ public class AccountWithUsersDto {
     String lastName;
     String email;
     LocalDate birthDate;
-    BigDecimal balance;
+    List<AccountBalanceDto> accountBalanceDtoList;
     List<ShortAccountDto> shortAccountDtoList;
 }

@@ -1,0 +1,13 @@
+replicaCount: 1
+
+image:
+  tag: "latest"
+  pullPolicy: Never
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8086
+
+config:
+  keycloak_url: "http://keycloak/keycloak/realms/master"

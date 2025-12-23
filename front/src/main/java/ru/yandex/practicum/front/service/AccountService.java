@@ -48,6 +48,9 @@ public class AccountService {
     @Value("${urls.account.get.full}")
     private String getAccountWithUsersUrl;
 
+    @Value("${urls.account.balance}")
+    private String createNewBalanceUrl;
+
     private final RestTemplate restTemplate;
     private final OAuth2Service oAuth2Service;
     private final PasswordEncoder passwordEncoder;
@@ -125,6 +128,18 @@ public class AccountService {
 
     }
 
+    @Retry(name = "accountService")
+    @CircuitBreaker(name = "accountService", fallbackMethod = "fallbackCreateNewBalance")
+    public List<String> createNewBalance(String username, String newCurrency) {
+        CreateBalanceRequestDto createBalanceRequestDto = new CreateBalanceRequestDto();
+        createBalanceRequestDto.setLogin(username);
+        createBalanceRequestDto.setCurrency(newCurrency);
+        HttpEntity<CreateBalanceRequestDto> request =
+                new HttpEntity<>(createBalanceRequestDto, oAuth2Service.formHeadersWithToken(KeycloakEnum.ACCOUNT));
+        restTemplate.postForObject(createNewBalanceUrl, request, Void.class);
+        return new ArrayList<>();
+    }
+
     private String formPassword(String password) {
         return password.trim().length() < 4 ? password : passwordEncoder.encode(password);
     }
@@ -158,5 +173,9 @@ public class AccountService {
 
     public AccountWithUsersDto fallbackGetAccountWithAllUsers(String login, Exception exception) throws Exception {
         return fallbackProcessService.getAccountWithAllUsersFallback(login, exception);
+    }
+
+    public List<String> fallbackCreateNewBalance(String username, String newCurrency, Exception exception) {
+        return fallbackProcessService.basicUnprocessableEntityFallback(exception);
     }
 }

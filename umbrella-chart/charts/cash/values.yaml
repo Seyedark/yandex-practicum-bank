@@ -1,0 +1,24 @@
+replicaCount: 1
+
+image:
+  tag: "latest"
+  pullPolicy: Never
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8083
+
+config:
+  database_url: "jdbc:postgresql://postgres-0.postgres:5432/postgres?currentSchema=cash"
+  data_base_fly_way_url: "jdbc:postgresql://postgres-0.postgres:5432/postgres"
+  database_username: "postgres"
+  database_password: "postgres"
+  keycloak_url: "http://keycloak/keycloak/realms/master"
+  notification_url: "http://notification/notification/email"
+  account_get_balance_url: "http://account/account/balance?login={login}&currency={currency}"
+  account_patch_balance_url: "http://account/account/balance"
+  blocker_url: "http://blocker/blocker/block"
+  blocker_client_secret: "c81Y8FXddFGEQOchrQpmEzUyExFWybPM"
+  notification_client_secret: "XtBb8sXukFDmUQgYGJWd6mylwfFxyUw0"
+  account_client_secret: "cuqu6hPnGUhwcFlDijZLCYDZ8HuQJB4s"

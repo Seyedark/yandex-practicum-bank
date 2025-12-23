@@ -6,11 +6,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.account.dao.entity.AccountBalanceEntity;
 import ru.yandex.practicum.account.dao.entity.AccountEntity;
 import ru.yandex.practicum.account.dao.entity.NotificationEntity;
 import ru.yandex.practicum.account.dao.repository.AccountRepository;
 import ru.yandex.practicum.account.dto.*;
 import ru.yandex.practicum.account.enums.AccountErrorEnum;
+import ru.yandex.practicum.account.enums.CurrencyEnum;
 import ru.yandex.practicum.account.enums.MessageEnum;
 import ru.yandex.practicum.account.exception.AccountCustomException;
 
@@ -41,6 +43,54 @@ public class AccountService {
         }
     }
 
+    @Transactional
+    public BalanceDto findAccountByLoginAndCurrency(String login, String currency) {
+        AccountEntity accountEntity = accountRepository.findByLogin(login);
+        if (accountEntity != null && accountBalanceExist(accountEntity, currency)) {
+            AccountBalanceEntity accountBalanceEntity = accountEntity.getAccountBalances()
+                    .stream()
+                    .filter(x -> x.getCurrency().equals(currency))
+                    .findFirst()
+                    .orElseThrow(() -> {
+                        String errorMessage = String.format(
+                                "Баланс с валютой '%s' не найден",
+                                currency,
+                                accountEntity.getId()
+                        );
+                        log.error(errorMessage);
+                        return new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+                    });
+            BalanceDto balanceDto = new BalanceDto();
+            balanceDto.setBalance(accountBalanceEntity.getBalance());
+            balanceDto.setEmail(accountEntity.getEmail());
+            return balanceDto;
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Transactional
+    public void createNewAccountBalance(CreateBalanceRequestDto createBalanceRequestDto) {
+        AccountEntity accountEntity = accountRepository.findByLogin(createBalanceRequestDto.getLogin());
+        if (accountEntity != null) {
+            boolean exist = accountEntity.getAccountBalances()
+                    .stream()
+                    .anyMatch(x -> x.getCurrency().equals(createBalanceRequestDto.getCurrency()));
+            if (exist) {
+                throw new AccountCustomException(List.of(AccountErrorEnum.CURRENCY_ALREADY_EXIST.getMessage()));
+            } else {
+                AccountBalanceEntity accountBalanceEntity = new AccountBalanceEntity();
+                accountBalanceEntity.setCurrency(createBalanceRequestDto.getCurrency());
+                accountBalanceEntity.setBalance(BigDecimal.ZERO);
+                accountEntity.getAccountBalances().add(accountBalanceEntity);
+                accountRepository.save(accountEntity);
+            }
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Transactional
     public AccountWithUsersDto findAccountByLoginWithUsers(String login) {
         List<AccountEntity> accountEntityList = accountRepository.findAll();
         AccountEntity accountEntity = getActualAccountEntity(accountEntityList, login);
@@ -52,10 +102,11 @@ public class AccountService {
             accountWithUsersDto.setLastName(accountEntity.getLastName());
             accountWithUsersDto.setEmail(accountEntity.getEmail());
             accountWithUsersDto.setBirthDate(accountEntity.getBirthDate());
-            accountWithUsersDto.setBalance(accountEntity.getBalance());
             List<AccountEntity> otherUsers = accountEntityList.stream()
                     .filter(entity -> !entity.getId().equals(accountEntity.getId()))
                     .toList();
+            List<AccountBalanceEntity> accountBalanceEntityList = accountEntity.getAccountBalances();
+            fillAccountBalanceList(accountWithUsersDto, accountBalanceEntityList);
             fillShortAccountDtoList(accountWithUsersDto, otherUsers);
             return accountWithUsersDto;
         } else {
@@ -71,7 +122,6 @@ public class AccountService {
         accountDto.setEmail(accountEntity.getEmail());
         accountDto.setBirthDate(accountEntity.getBirthDate());
         accountDto.setPassword(accountEntity.getPassword());
-        accountDto.setBalance(accountEntity.getBalance());
         return accountDto;
     }
 
@@ -89,13 +139,17 @@ public class AccountService {
                 newAccountEntity.setEmail(accountCreateRequestDto.getEmail());
                 newAccountEntity.setBirthDate(accountCreateRequestDto.getBirthDate());
                 newAccountEntity.setPassword(accountCreateRequestDto.getPassword());
-                newAccountEntity.setBalance(BigDecimal.ZERO);
+
+                AccountBalanceEntity accountBalanceEntity = new AccountBalanceEntity();
+                accountBalanceEntity.setCurrency(CurrencyEnum.RUB.name());
+                accountBalanceEntity.setBalance(BigDecimal.ZERO);
 
                 NotificationEntity notificationEntity = new NotificationEntity();
                 notificationEntity.setEmail(accountCreateRequestDto.getEmail());
                 notificationEntity.setMessage(MessageEnum.CREATE_ACCOUNT.getMessage());
                 notificationEntity.setNotificationSent(false);
 
+                newAccountEntity.getAccountBalances().add(accountBalanceEntity);
                 newAccountEntity.getNotifications().add(notificationEntity);
 
                 accountRepository.save(newAccountEntity);
@@ -157,25 +211,42 @@ public class AccountService {
     @Transactional
     public void changeBalance(ChangeAccountBalanceRequestDto changeAccountBalanceRequestDto) {
         AccountEntity accountEntity = accountRepository.findByLogin(changeAccountBalanceRequestDto.getLogin());
-        if (accountEntity != null) {
-            accountEntity.setBalance(changeAccountBalanceRequestDto.getBalance());
+        if (accountEntity != null && accountBalanceExist(accountEntity, changeAccountBalanceRequestDto.getCurrency())) {
+            AccountBalanceEntity accountBalanceEntity = accountEntity.getAccountBalances()
+                    .stream()
+                    .filter(x -> x.getCurrency().equals(changeAccountBalanceRequestDto.getCurrency()))
+                    .findFirst()
+                    .get();
+            accountBalanceEntity.setBalance(changeAccountBalanceRequestDto.getBalance());
             accountRepository.save(accountEntity);
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    public TransferAccountsDto getTransferAccountsDto(String loginFrom, String loginTo) {
+    @Transactional
+    public TransferAccountsDto getTransferAccountsDto(String loginFrom, String currencyIdFrom, String loginTo, String currencyTo) {
         AccountEntity accountFromEntity = accountRepository.findByLogin(loginFrom);
         AccountEntity accountToEntity = accountRepository.findByLogin(loginTo);
-        if (accountFromEntity != null && accountToEntity != null) {
+        if (accountFromEntity != null && accountToEntity != null && accountBalanceExist(accountFromEntity, currencyIdFrom)
+                && accountBalanceExist(accountToEntity, currencyTo)) {
+            AccountBalanceEntity accountBalanceEntityFrom = accountFromEntity.getAccountBalances()
+                    .stream()
+                    .filter(x -> x.getCurrency().equals(currencyIdFrom))
+                    .findFirst()
+                    .get();
+            AccountBalanceEntity accountBalanceEntityTo = accountToEntity.getAccountBalances()
+                    .stream()
+                    .filter(x -> x.getCurrency().equals(currencyTo))
+                    .findFirst()
+                    .get();
             TransferAccountsDto transferAccountsDto = new TransferAccountsDto();
             transferAccountsDto.setLoginFrom(accountFromEntity.getLogin());
             transferAccountsDto.setEmailFrom(accountFromEntity.getEmail());
-            transferAccountsDto.setBalanceFrom(accountFromEntity.getBalance());
+            transferAccountsDto.setBalanceFrom(accountBalanceEntityFrom.getBalance());
             transferAccountsDto.setLoginTo(accountToEntity.getLogin());
             transferAccountsDto.setEmailTo(accountToEntity.getEmail());
-            transferAccountsDto.setBalanceTo(accountToEntity.getBalance());
+            transferAccountsDto.setBalanceTo(accountBalanceEntityTo.getBalance());
             return transferAccountsDto;
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -186,14 +257,31 @@ public class AccountService {
     public void transfer(TransferRequestDto transferRequestDto) {
         AccountEntity accountFromEntity = accountRepository.findByLogin(transferRequestDto.getLoginFrom());
         AccountEntity accountToEntity = accountRepository.findByLogin(transferRequestDto.getLoginTo());
-        if (accountFromEntity != null && accountToEntity != null) {
+        if (accountFromEntity != null && accountBalanceExist(accountFromEntity, transferRequestDto.getCurrencyFrom())
+                && accountToEntity != null && accountBalanceExist(accountToEntity, transferRequestDto.getCurrencyTo())) {
             List<AccountEntity> accountEntityList = new ArrayList<>();
-            accountFromEntity.setBalance(transferRequestDto.getBalanceFrom());
-            accountToEntity.setBalance(transferRequestDto.getBalanceTo());
+            AccountBalanceEntity accountBalanceEntityFrom = accountFromEntity.getAccountBalances()
+                    .stream()
+                    .filter(x -> x.getCurrency().equals(transferRequestDto.getCurrencyFrom()))
+                    .findFirst()
+                    .get();
+            AccountBalanceEntity accountBalanceEntityTo = accountToEntity.getAccountBalances()
+                    .stream()
+                    .filter(x -> x.getCurrency().equals(transferRequestDto.getCurrencyTo()))
+                    .findFirst()
+                    .get();
+            accountBalanceEntityFrom.setBalance(transferRequestDto.getBalanceFrom());
+            accountBalanceEntityTo.setBalance(transferRequestDto.getBalanceTo());
             accountRepository.saveAll(accountEntityList);
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private boolean accountBalanceExist(AccountEntity accountEntity, String currency) {
+        return accountEntity.getAccountBalances()
+                .stream()
+                .anyMatch(x -> x.getCurrency().equals(currency));
     }
 
     private AccountEntity getActualAccountEntity(List<AccountEntity> accountEntityList, String login) {
@@ -212,10 +300,32 @@ public class AccountService {
                 shortAccountDto.setLogin(accountEntity.getLogin());
                 shortAccountDto.setFirstName(accountEntity.getFirstName());
                 shortAccountDto.setLastName(accountEntity.getLastName());
+
+                List<AccountBalanceDto> accountBalanceDtoList = accountEntity.getAccountBalances()
+                        .stream()
+                        .map(x -> {
+                            AccountBalanceDto accountBalanceDto = new AccountBalanceDto();
+                            accountBalanceDto.setCurrency(x.getCurrency());
+                            return accountBalanceDto;
+                        })
+                        .toList();
+                shortAccountDto.setAccountBalanceDtoList(accountBalanceDtoList);
                 shortAccountDtoLists.add(shortAccountDto);
             });
             accountWithUsersDto.setShortAccountDtoList(shortAccountDtoLists);
         }
+    }
+
+    private void fillAccountBalanceList(AccountWithUsersDto accountWithUsersDto, List<AccountBalanceEntity> accountBalanceEntityList) {
+        List<AccountBalanceDto> accountBalanceDtoList = accountBalanceEntityList
+                .stream()
+                .map(x -> {
+                    AccountBalanceDto accountBalanceDto = new AccountBalanceDto();
+                    accountBalanceDto.setCurrency(x.getCurrency());
+                    return accountBalanceDto;
+                })
+                .toList();
+        accountWithUsersDto.setAccountBalanceDtoList(accountBalanceDtoList);
     }
 
     private void checkAccountCreateRequestDto(AccountCreateRequestDto accountCreateRequestDto, List<String> errorTypeList) {

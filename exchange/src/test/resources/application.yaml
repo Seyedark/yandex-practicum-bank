@@ -1,0 +1,4 @@
+spring:
+  # Отключаем Flyway
+  flyway:
+    enabled: false

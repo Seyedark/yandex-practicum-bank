@@ -16,5 +16,4 @@ public class AccountDto {
     String lastName;
     String email;
     LocalDate birthDate;
-    BigDecimal balance;
 }

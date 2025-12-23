@@ -6,10 +6,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import ru.yandex.practicum.account.dto.AccountDto;
-import ru.yandex.practicum.account.dto.AccountWithUsersDto;
-import ru.yandex.practicum.account.dto.ShortAccountDto;
-import ru.yandex.practicum.account.dto.TransferAccountsDto;
+import ru.yandex.practicum.account.dto.*;
+import ru.yandex.practicum.account.enums.CurrencyEnum;
 import ru.yandex.practicum.account.service.AccountService;
 
 import java.math.BigDecimal;
@@ -38,7 +36,6 @@ public abstract class ContractTest {
         mockAccount.setLastName("Тестов");
         mockAccount.setEmail("login@mail.ru");
         mockAccount.setBirthDate(LocalDate.of(1990, 1, 1));
-        mockAccount.setBalance(BigDecimal.ONE);
 
         AccountWithUsersDto mockAccountWithUsers = new AccountWithUsersDto();
         mockAccountWithUsers.setLogin("login");
@@ -47,13 +44,16 @@ public abstract class ContractTest {
         mockAccountWithUsers.setLastName("Тестов");
         mockAccountWithUsers.setEmail("login@mail.ru");
         mockAccountWithUsers.setBirthDate(LocalDate.of(1990, 1, 1));
-        mockAccountWithUsers.setBalance(BigDecimal.ONE);
 
         ShortAccountDto shortAccount = new ShortAccountDto();
         shortAccount.setLogin("login");
         shortAccount.setFirstName("Тест1");
         shortAccount.setLastName("Тестов1");
         mockAccountWithUsers.setShortAccountDtoList(List.of(shortAccount));
+
+        AccountBalanceDto accountBalanceDto = new AccountBalanceDto();
+        accountBalanceDto.setCurrency(CurrencyEnum.RUB.name());
+        mockAccountWithUsers.setAccountBalanceDtoList(List.of(accountBalanceDto));
 
         TransferAccountsDto transferAccounts = new TransferAccountsDto();
 
@@ -65,9 +65,15 @@ public abstract class ContractTest {
         transferAccounts.setEmailTo("login2@mail.ru");
         transferAccounts.setBalanceTo(BigDecimal.ONE);
 
-        when(accountService.getTransferAccountsDto("login1", "login2")).thenReturn(transferAccounts);
+        BalanceDto balanceDto = new BalanceDto();
+        balanceDto.setEmail("login@mail.ru");
+        balanceDto.setBalance(BigDecimal.ONE);
+
+        when(accountService.getTransferAccountsDto("login1", CurrencyEnum.RUB.name(), "login2", CurrencyEnum.RUB.name())).thenReturn(transferAccounts);
         when(accountService.findAccountByLoginWithUsers("login")).thenReturn(mockAccountWithUsers);
         when(accountService.findAccountByLogin("login")).thenReturn(mockAccount);
+        when(accountService.findAccountByLoginAndCurrency("login", "RUB")).thenReturn(balanceDto);
+
 
         io.restassured.module.mockmvc.RestAssuredMockMvc.mockMvc(
                 MockMvcBuilders.webAppContextSetup(context).build()

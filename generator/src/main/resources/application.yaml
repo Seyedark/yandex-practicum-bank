@@ -1,0 +1,74 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: generator
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI:http://localhost:9090/realms/master}
+      client:
+        provider:
+          keycloak:
+            issuer-uri: ${SPRING_SECURITY_OAUTH2_PROVIDER_ISSUER_URI:http://localhost:9090/realms/master}
+        registration:
+          exchange-client:
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: exchange_client
+            client-secret: ${CLIENT_SECRET:d2BXJ8UKxrdbF8TybLsZp0vsIGXCwt8Y}
+            scope: profile
+            clientAuthenticationMethod: client_secret_post
+
+resilience4j:
+  circuitbreaker:
+    circuitBreakerAspectOrder: 1
+    configs:
+      default:
+        slidingWindowSize: 20
+        minimum-number-of-calls: 3
+        permitted-number-of-calls-in-half-open-state: 5
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: 2s
+        wait-duration-in-open-state: 10s
+        max-wait-duration-in-half-open-state: 5s
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - java.lang.Throwable
+          - org.springframework.web.client.HttpServerErrorException
+          - org.springframework.web.client.HttpClientErrorException
+          - java.io.IOException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+    instances:
+      exchangeService:
+        base-config: default
+
+  retry:
+    retryAspectOrder: 2
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 1s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        max-wait-duration: 5s
+        retry-exceptions:
+          - java.lang.Throwable
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+    instances:
+      exchangeService:
+        base-config: default
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.client.HttpClientErrorException$UnprocessableEntity
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.client.HttpClientErrorException
+urls:
+  exchange: ${EXCHANGE_URL:http://localhost:8087/exchange/exchange}

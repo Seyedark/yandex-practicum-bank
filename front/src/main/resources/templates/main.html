@@ -77,6 +77,29 @@
     </tr>
     <tr>
         <td style="padding:2px;">
+            <form method="post" th:action="@{account/create-balance}">
+                <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
+                    <tr th:each="error : ${errorCurrencyList}">
+                        <td style="color:red;" th:text="${error}" colspan="2"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select name="newCurrency" style="width:100%;" required>
+                                <option th:each="currency : ${existingCurrency}"
+                                        th:value="${currency}"
+                                        th:text="${currency}"></option>
+                            </select>
+                        </td>
+                        <td style="text-align:right">
+                            <button name="action">Создать новый счёт</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding:2px;">
             <form method="post" th:action="@{account/balance}">
                 <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
                     <tr th:each="error : ${errorBalanceList}">
@@ -84,10 +107,16 @@
                     </tr>
                     <tr>
                         <td style="font-weight:bold;">Наличные</td>
-                        <td>
-                            <input name="balance" type="number" style="width:100%" required/>
+                        <td style="padding-right: 10px;">
+                            <input name="balance" type="number" style="width:100%;" required/>
                         </td>
                         <td>
+                            <select name="currency" style="width:100%;" required>
+                                <option th:each="currency : ${currentAccountBalance}"
+                                        th:value="${currency.currency}"
+                                        th:text="${currency.currency}"></option>
+                            </select>
+                        </td>
                         <td style="text-align:right">
                             <button name="action" value="ACCRUAL">Положить</button>
                             <button name="action" value="WRITE_OFF">Снять</button>
@@ -97,36 +126,126 @@
             </form>
         </td>
     </tr>
+    <td style="padding:2px;">
+        <form method="post" th:action="@{account/transfer}">
+            <input type="hidden" name="loginTo" th:value="${login}"/>
+            <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
+                <tr>
+                    <td style="font-weight:bold;">Перевод между своими счетами</td>
+                <tr th:each="error : ${errorSelfTransferList}">
+                    <td style="color:red;" th:text="${error}" colspan="2"></td>
+                </tr>
+                <td>
+                    <input name="transferAmount" type="number" required
+                           th:disabled="${#lists.size(currentAccountBalance) <= 1}"/>
+                </td>
+                <td>С какого счёта
+                    <select name="currencyFrom" style="width:100%;" required
+                            th:if="${not #lists.isEmpty(currentAccountBalance)}">
+                        <option th:disabled="${#lists.size(currentAccountBalance) <= 1}"
+                                th:each="currency : ${currentAccountBalance}"
+                                th:value="${currency.currency}"
+                                th:text="${currency.currency}"></option>
+                    </select>
+                </td>
+                <td>На какой счёт
+                    <select name="currencyTo" style="width:100%;" required
+                            th:if="${not #lists.isEmpty(currentAccountBalance)}">
+                        <option th:disabled="${#lists.size(currentAccountBalance) <= 1}"
+                                th:each="currency : ${currentAccountBalance}"
+                                th:value="${currency.currency}"
+                                th:text="${currency.currency}"></option>
+                    </select>
+                </td>
+                <td>
+                <span th:if="${#lists.size(currentAccountBalance) <= 1}" style="color: red;">
+                       Существует только 1 счёт, нет возможности перевода между счетами
+                    </span>
+                </td>
+                <td style="text-align:right">
+                    <button th:disabled="${#lists.size(currentAccountBalance) <= 1}">Перевести</button>
+                </td>
+                </tr>
+            </table>
+        </form>
+    </td>
     <tr>
         <td style="padding:2px;">
-
             <form method="post" th:action="@{account/transfer}">
                 <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
                     <tr th:each="error : ${errorTransferList}">
                         <td style="color:red;" th:text="${error}" colspan="2"></td>
                     </tr>
                     <tr>
-                        <td style="font-weight:bold;">Перевод</td>
+                        <td style="font-weight:bold;">Перевод другому пользователю</td>
                         <td>
                             <input name="transferAmount" type="number" required
                                    th:disabled="${#lists.isEmpty(usersList)}"/>
                         </td>
+                        <td>Валюта текущего пользователя
+                            <select name="currencyFrom" style="width:100%;" required>
+                                <option th:each="currency : ${currentAccountBalance}"
+                                        th:value="${currency.currency}"
+                                        th:text="${currency.currency}"></option>
+                            </select>
+                        </td>
                         <td>Кому
-                            <select name="loginTo" th:if="${not #lists.isEmpty(usersList)}">
+                            <select name="loginTo" id="userSelect">
+                                <option value="">Выберите пользователя</option>
                                 <option th:each="user : ${usersList}"
                                         th:value="${user.login}"
+                                        th:data-currencies="${#strings.listJoin(user.accountBalanceDtoList.![currency], ',')}"
                                         th:text="${user.lastName + ' ' + user.firstName}"/>
                             </select>
-                            <span th:if="${#lists.isEmpty(usersList)}" style="color: red;">
-                            Нет пользователей для перевода
-                            </span>
+                            <select name="currencyTo" id="currencySelect" hidden>
+                                <option value="">Выберите валюту</option>
+                            </select>
                         </td>
+                        <script>
+                            userSelect.addEventListener('change', function() {
+                                const user = this.options[this.selectedIndex];
+
+                                currencySelect.innerHTML = '<option value="">Выберите валюту</option>';
+                                currencySelect.hidden = true;
+
+                                if (user.value && user.dataset.currencies) {
+                                    const currencies = user.dataset.currencies.split(',');
+                                    currencies.forEach(c => c && currencySelect.add(new Option(c, c)));
+                                    currencySelect.hidden = false;
+                                }
+                            });
+                        </script>
+                        <span th:if="${#lists.isEmpty(usersList)}" style="color: red;">
+                            Нет пользователей для перевода
+                        </span>
                         <td style="text-align:right">
                             <button th:disabled="${#lists.isEmpty(usersList)}">Перевести</button>
                         </td>
                     </tr>
                 </table>
             </form>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding:2px;">
+            <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
+                <tr th:if="${exchangeDtoList == null or exchangeDtoList.isEmpty()}">
+                    <td colspan="2" style="color:red">
+                        Курсы валют временно недоступны
+                    </td>
+                </tr>
+                <tr style="background-color:#f0f0f0;">
+                    <th style="padding:10px;text-align:left;">Валюта</th>
+                    <th style="padding:10px;text-align:left;">Курс покупки к рублю</th>
+                    <th style="padding:10px;text-align:left;">Курс продажи к рублю</th>
+                </tr>
+                <tr th:each="exchange : ${exchangeDtoList}"
+                    style="border-bottom:1px solid #ddd;">
+                    <td style="padding:8px 10px;" th:text="${exchange.currency}"></td>
+                    <td style="padding:8px 10px;" th:text="${exchange.purchaseRate}"></td>
+                    <td style="padding:8px 10px;" th:text="${exchange.sellingRate}"></td>
+                </tr>
+            </table>
         </td>
     </tr>
 </table>

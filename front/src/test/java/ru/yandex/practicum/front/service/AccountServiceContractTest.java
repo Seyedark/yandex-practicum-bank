@@ -133,4 +133,30 @@ public class AccountServiceContractTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
+
+    @Test
+    void createNewAccountBalanceTest() {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
+        String requestBody = """
+                {
+                login: "login",
+                currency: "RUB"
+                }
+                """;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
+
+        ResponseEntity<Void> response = restTemplate.exchange(
+                "http://localhost:8080/account/balance",
+                HttpMethod.POST,
+                request,
+                Void.class
+        );
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
 }

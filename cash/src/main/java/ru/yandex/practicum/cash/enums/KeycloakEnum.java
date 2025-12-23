@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum KeycloakEnum {
     ACCOUNT("account-client", "system"),
+    BLOCKER("blocker-client", "system"),
     NOTIFICATION("notification-client", "system");
     private final String clientId;
     private final String principal;

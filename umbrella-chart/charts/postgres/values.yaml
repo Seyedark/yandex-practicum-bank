@@ -1,0 +1,11 @@
+replicaCount: 1
+
+image:
+  tag: 16
+
+service:
+  type: None
+  port: 5432
+
+config:
+  database_password: "postgres"

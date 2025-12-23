@@ -6,14 +6,16 @@ Contract.make {
     description "Should change cash"
     request {
         method PATCH()
-        url "/transfer"
+        url "/transfer/transfer"
         headers {
             contentType(applicationJson())
         }
         body([
-                login  : "login",
+                login       : "login",
                 changeAmount: 1,
-                actionEnum:  "ACCRUAL"
+                actionEnum  : "ACCRUAL",
+                currencyFrom: "RUB",
+                currencyTo  : "RUB"
         ])
     }
     response {

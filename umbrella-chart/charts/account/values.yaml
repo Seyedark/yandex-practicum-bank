@@ -1,0 +1,19 @@
+replicaCount: 1
+
+image:
+  tag: "latest"
+  pullPolicy: Never
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8082
+
+config:
+  database_url: "jdbc:postgresql://postgres-0.postgres:5432/postgres?currentSchema=accounts"
+  data_base_fly_way_url: "jdbc:postgresql://postgres-0.postgres:5432/postgres"
+  database_username: "postgres"
+  database_password: "postgres"
+  keycloak_url: "http://keycloak/keycloak/realms/master"
+  notification_url: "http://notification/notification/email"
+  client_secret: "XtBb8sXukFDmUQgYGJWd6mylwfFxyUw0"

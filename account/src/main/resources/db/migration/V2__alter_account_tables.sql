@@ -1,0 +1,11 @@
+ALTER TABLE accounts DROP COLUMN balance;
+
+CREATE TABLE account_balance (
+    id BIGSERIAL PRIMARY KEY,
+    balance DECIMAL(15, 2) NOT NULL,
+    currency VARCHAR(3) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    account_id BIGINT,
+    CONSTRAINT fk_account FOREIGN KEY (account_id) REFERENCES accounts(id)ON DELETE CASCADE
+);
