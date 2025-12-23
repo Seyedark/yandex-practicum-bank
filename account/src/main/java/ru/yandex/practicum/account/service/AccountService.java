@@ -51,7 +51,15 @@ public class AccountService {
                     .stream()
                     .filter(x -> x.getCurrency().equals(currency))
                     .findFirst()
-                    .get();
+                    .orElseThrow(() -> {
+                        String errorMessage = String.format(
+                                "Баланс с валютой '%s' не найден",
+                                currency,
+                                accountEntity.getId()
+                        );
+                        log.error(errorMessage);
+                        return new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+                    });
             BalanceDto balanceDto = new BalanceDto();
             balanceDto.setBalance(accountBalanceEntity.getBalance());
             balanceDto.setEmail(accountEntity.getEmail());

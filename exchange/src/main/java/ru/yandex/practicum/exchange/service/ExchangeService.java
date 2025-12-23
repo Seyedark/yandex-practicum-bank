@@ -11,6 +11,7 @@ import ru.yandex.practicum.exchange.dto.ConvertResponseDto;
 import ru.yandex.practicum.exchange.dto.ExchangeDto;
 import ru.yandex.practicum.exchange.enums.CurrencyEnum;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -44,6 +45,8 @@ public class ExchangeService {
                         Function.identity()
                 ));
 
+        List<ExchangeEntity> entitiesToSave = new ArrayList<>();
+
         exchangeDtoList.forEach(dto -> {
             ExchangeEntity entity = existingEntities.get(dto.getCurrency());
             if (entity != null) {
@@ -55,33 +58,40 @@ public class ExchangeService {
                 entity.setPurchaseRate(dto.getPurchaseRate());
                 entity.setSellingRate(dto.getSellingRate());
             }
-            exchangeRepository.save(entity);
+            entitiesToSave.add(entity);
         });
 
+        exchangeRepository.saveAll(entitiesToSave);
     }
 
     public ConvertResponseDto convert(ConvertRequestDto convertRequestDto) {
         ConvertResponseDto convertResponseDto = new ConvertResponseDto();
         List<ExchangeDto> exchangeDtoList = getExchangeDtoList();
         if (!convertRequestDto.getCurrencyFrom().equals(convertRequestDto.getCurrencyTo())) {
-            if (convertRequestDto.getCurrencyFrom().equals(CurrencyEnum.RUB.name())) {
-                ExchangeDto foreignCurrency = findByCurrency(exchangeDtoList, convertRequestDto.getCurrencyTo());
-                convertResponseDto.setConvertedAmount(convertRequestDto.getConvertAmount()
-                        .divide(foreignCurrency.getPurchaseRate()));
-            } else if (convertRequestDto.getCurrencyTo().equals(CurrencyEnum.RUB.name())) {
-                ExchangeDto foreignCurrency = findByCurrency(exchangeDtoList, convertRequestDto.getCurrencyFrom());
-                convertResponseDto.setConvertedAmount(convertRequestDto.getConvertAmount()
-                        .multiply(foreignCurrency.getSellingRate()));
-            } else {
-                ExchangeDto foreignCurrencyFrom = findByCurrency(exchangeDtoList, convertRequestDto.getCurrencyFrom());
-                ExchangeDto foreignCurrencyTo = findByCurrency(exchangeDtoList, convertRequestDto.getCurrencyTo());
-                convertResponseDto.setConvertedAmount(convertRequestDto.getConvertAmount()
-                        .multiply(foreignCurrencyFrom.getSellingRate()).divide(foreignCurrencyTo.getPurchaseRate()));
-            }
+            convertWithDifferenceCurrency(convertResponseDto, convertRequestDto, exchangeDtoList);
         } else {
             convertResponseDto.setConvertedAmount(convertRequestDto.getConvertAmount());
         }
         return convertResponseDto;
+    }
+
+    private void convertWithDifferenceCurrency(ConvertResponseDto convertResponseDto,
+                                               ConvertRequestDto convertRequestDto,
+                                               List<ExchangeDto> exchangeDtoList) {
+        if (convertRequestDto.getCurrencyFrom().equals(CurrencyEnum.RUB.name())) {
+            ExchangeDto foreignCurrency = findByCurrency(exchangeDtoList, convertRequestDto.getCurrencyTo());
+            convertResponseDto.setConvertedAmount(convertRequestDto.getConvertAmount()
+                    .divide(foreignCurrency.getPurchaseRate()));
+        } else if (convertRequestDto.getCurrencyTo().equals(CurrencyEnum.RUB.name())) {
+            ExchangeDto foreignCurrency = findByCurrency(exchangeDtoList, convertRequestDto.getCurrencyFrom());
+            convertResponseDto.setConvertedAmount(convertRequestDto.getConvertAmount()
+                    .multiply(foreignCurrency.getSellingRate()));
+        } else {
+            ExchangeDto foreignCurrencyFrom = findByCurrency(exchangeDtoList, convertRequestDto.getCurrencyFrom());
+            ExchangeDto foreignCurrencyTo = findByCurrency(exchangeDtoList, convertRequestDto.getCurrencyTo());
+            convertResponseDto.setConvertedAmount(convertRequestDto.getConvertAmount()
+                    .multiply(foreignCurrencyFrom.getSellingRate()).divide(foreignCurrencyTo.getPurchaseRate()));
+        }
     }
 
     private ExchangeDto findByCurrency(List<ExchangeDto> exchangeDtoList, String currency) {
