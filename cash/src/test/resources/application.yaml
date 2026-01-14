@@ -1,6 +1,18 @@
 server:
   port: 8083
 spring:
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS_CONFIG:localhost:9092}
+    topic:
+      notification: ${NOTIFICATION_TOPIC:cash-notification-topic}
   # Отключаем Flyway
   flyway:
     enabled: false
+
+urls:
+  account:
+    get:
+      balance: ${ACCOUNT_GET_BALANCE_URL:http://localhost:8082/account/balance?login={login}&currency={currency}}
+    patch:
+      balance: ${ACCOUNT_PATCH_BALANCE_URL:http://localhost:8082/account/balance}
+  blocker: ${BLOCKER_URL:http://localhost:8086/blocker/block}

@@ -4,14 +4,16 @@ metadata:
   name: {{ include "keycloak.name" . }}
   # Дополнительные настройки для Ingress контроллера
   annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
 spec:
   ingressClassName: nginx
   # Список правил маршрутизации
   rules:
-    - http:
+    - host: keycloak.local
+      http:
         paths:
-          - path: /keycloak
+          - path: /
             pathType: Prefix
             # Куда перенаправлять трафик
             backend:

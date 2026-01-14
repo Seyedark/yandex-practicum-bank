@@ -2,6 +2,10 @@ package ru.yandex.practicum.notification.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.notification.dao.entity.NotificationEntity;
@@ -16,12 +20,21 @@ import java.util.List;
 public class NotificationService {
     private final NotificationRepository notificationRepository;
 
-    public void saveNotificationEmailRequestDtoList(List<NotificationEmailRequestDto> notificationEmailRequestDtoList) {
-        List<NotificationEntity> notificationEntityList =
-                notificationEmailRequestDtoList.stream()
-                        .map(this::mapNotificationEmailRequestDtoToNotificationEntity)
-                        .toList();
-        notificationRepository.saveAll(notificationEntityList);
+    @KafkaListener(topics = {
+            "${spring.kafka.topic.account}",
+            "${spring.kafka.topic.cash}",
+            "${spring.kafka.topic.transfer}"
+    },
+            groupId = "${spring.kafka.consumer.group-id}")
+    public void listen(NotificationEmailRequestDto dto,
+                       Acknowledgment ack) {
+        try {
+            notificationRepository.save(mapNotificationEmailRequestDtoToNotificationEntity(dto));
+            ack.acknowledge();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw e;
+        }
     }
 
     private NotificationEntity mapNotificationEmailRequestDtoToNotificationEntity(NotificationEmailRequestDto notificationEmailRequestDto) {

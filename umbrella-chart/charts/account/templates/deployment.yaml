@@ -51,9 +51,3 @@ spec:
                 secretKeyRef:
                   name: {{ include "account.name" . }}
                   key: password
-            - name: CLIENT_SECRET
-              valueFrom:
-                # Ссылается на Секреты
-                secretKeyRef:
-                  name: {{ include "account.name" . }}
-                  key: secret

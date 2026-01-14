@@ -10,7 +10,7 @@ service:
   targetPort: 8081
 
 config:
-  keycloak_url: "http://keycloak/keycloak/realms/master"
+  keycloak_url: "http://keycloak/realms/master"
   account_get_account_url: "http://account/account?login={login}"
   account_full_account_url: "http://account/account/full?login={login}"
   account_create_url: "http://account/account"

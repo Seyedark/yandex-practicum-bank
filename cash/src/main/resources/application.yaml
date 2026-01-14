@@ -9,6 +9,10 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS_CONFIG:localhost:9092}
+    topic:
+      notification: ${NOTIFICATION_TOPIC:cash-notification-topic}
   security:
     oauth2:
       resourceserver:
@@ -24,13 +28,6 @@ spring:
             authorizationGrantType: client_credentials
             client-id: blocker_client
             client-secret: ${BLOCKER_CLIENT_SECRET:c81Y8FXddFGEQOchrQpmEzUyExFWybPM}
-            scope: profile
-            clientAuthenticationMethod: client_secret_post
-          notification-client:
-            provider: keycloak
-            authorizationGrantType: client_credentials
-            client-id: notification_client
-            client-secret: ${NOTIFICATION_CLIENT_SECRET:XtBb8sXukFDmUQgYGJWd6mylwfFxyUw0}
             scope: profile
             clientAuthenticationMethod: client_secret_post
           account-client:
@@ -80,8 +77,6 @@ resilience4j:
     instances:
       cashService:
         base-config: default
-      notificationService:
-        base-config: default
       blockerService:
         base-config: default
 
@@ -108,13 +103,6 @@ resilience4j:
           - org.springframework.web.client.HttpClientErrorException$UnprocessableEntity
           - org.springframework.web.client.HttpClientErrorException$NotFound
           - org.springframework.web.client.HttpClientErrorException
-      notificationService:
-        base-config: default
-        ignore-exceptions:
-          - org.springframework.web.client.HttpClientErrorException$BadRequest
-          - org.springframework.web.client.HttpClientErrorException$UnprocessableEntity
-          - org.springframework.web.client.HttpClientErrorException$NotFound
-          - org.springframework.web.client.HttpClientErrorException
 
 urls:
   account:
@@ -122,5 +110,4 @@ urls:
       balance: ${ACCOUNT_GET_BALANCE_URL:http://localhost:8082/account/balance?login={login}&currency={currency}}
     patch:
       balance: ${ACCOUNT_PATCH_BALANCE_URL:http://localhost:8082/account/balance}
-  notification: ${NOTIFICATION_URL:http://localhost:8085/notification/email}
   blocker: ${BLOCKER_URL:http://localhost:8086/blocker/block}

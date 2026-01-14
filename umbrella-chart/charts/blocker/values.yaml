@@ -10,4 +10,4 @@ service:
   targetPort: 8086
 
 config:
-  keycloak_url: "http://keycloak/keycloak/realms/master"
+  keycloak_url: "http://keycloak/realms/master"

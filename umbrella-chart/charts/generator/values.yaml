@@ -10,7 +10,5 @@ service:
   targetPort: 8088
 
 config:
-  #Лишний /keycloak из-за настройки внутри keycloak
-  keycloak_url: "http://keycloak/keycloak/realms/master"
-  exchange_url: "http://exchange/exchange/exchange"
-  client_secret: "d2BXJ8UKxrdbF8TybLsZp0vsIGXCwt8Y"
+  exchange_topic: "exchange-dto-list-topic"
+  bootstrap: "kafka:9092"
