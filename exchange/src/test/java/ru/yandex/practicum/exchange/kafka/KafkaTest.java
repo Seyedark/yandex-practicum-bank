@@ -43,10 +43,11 @@ public class KafkaTest extends SpringBootPostgreSQLBase {
     @Autowired
     private KafkaTemplate<String, ExchangeDtoList> kafkaTemplate;
 
+    private final Long KAFKA_INITIALIZATION_TIMEOUT_MS = 3000L;
+
     @BeforeEach
     void waitForKafka() throws InterruptedException {
-        // Время Kafka полностью инициализироваться после пересоздания контекста
-        Thread.sleep(3000);
+        Thread.sleep(KAFKA_INITIALIZATION_TIMEOUT_MS);
     }
 
     @Test

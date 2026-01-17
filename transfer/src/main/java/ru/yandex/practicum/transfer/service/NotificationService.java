@@ -17,11 +17,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
-    private final KafkaTemplate<String, NotificationEmailRequestDto> kafkaTemplate;
     private final NotificationRepository notificationRepository;
-
-    @Value("${spring.kafka.topic.notification}")
-    private String notificationTopic;
+    private final NotificationKafkaService notificationKafkaService;
 
     @Scheduled(initialDelay = 60000, fixedRate = 60000)
     public void processTop100Notifications() {
@@ -29,9 +26,7 @@ public class NotificationService {
         if (notificationEntityList != null && !notificationEntityList.isEmpty()) {
             for (NotificationEntity notificationEntity : notificationEntityList) {
                 try {
-                    UUID uuid = UUID.randomUUID();
-                    kafkaTemplate.send(notificationTopic, uuid.toString(),
-                            mapNotificationEntityToNotificationEmailRequestDto(notificationEntity));
+                    notificationKafkaService.sendToKafka(notificationEntity);
                     notificationEntity.setNotificationSent(true);
                     notificationRepository.save(notificationEntity);
                 } catch (Exception e) {
@@ -39,12 +34,5 @@ public class NotificationService {
                 }
             }
         }
-    }
-
-    private NotificationEmailRequestDto mapNotificationEntityToNotificationEmailRequestDto(NotificationEntity notificationEntity) {
-        NotificationEmailRequestDto notificationEmailRequestDto = new NotificationEmailRequestDto();
-        notificationEmailRequestDto.setEmail(notificationEntity.getEmail());
-        notificationEmailRequestDto.setMessage(notificationEntity.getMessage());
-        return notificationEmailRequestDto;
     }
 }
