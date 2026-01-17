@@ -1,6 +1,10 @@
 server:
   port: 8082
 spring:
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS_CONFIG:localhost:9092}
+    topic:
+      notification: ${NOTIFICATION_TOPIC:account-notification-topic}
   # Отключаем Flyway
   flyway:
     enabled: false

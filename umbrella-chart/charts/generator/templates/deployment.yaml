@@ -43,11 +43,3 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "generator.name" . }}
-          # Для получения секретов
-          env:
-            - name: CLIENT_SECRET
-              valueFrom:
-                # Ссылается на Секреты
-                secretKeyRef:
-                  name: {{ include "generator.name" . }}
-                  key: secret

@@ -14,4 +14,7 @@ config:
   data_base_fly_way_url: "jdbc:postgresql://postgres-0.postgres:5432/postgres"
   database_username: "postgres"
   database_password: "postgres"
-  keycloak_url: "http://keycloak/keycloak/realms/master"
+  keycloak_url: "http://keycloak/realms/master"
+  exchange_topic: "exchange-dto-list-topic"
+  exchange_group_id: "exchange"
+  bootstrap: "kafka:9092"

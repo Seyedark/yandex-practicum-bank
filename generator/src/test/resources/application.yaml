@@ -1,2 +1,9 @@
 server:
   port: 8088
+
+spring:
+  application:
+    name: generator
+  kafka:
+    topic:
+      exchange: ${EXCHANGE_TOPIC:exchange-dto-list-topic}

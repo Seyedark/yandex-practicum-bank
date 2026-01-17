@@ -1,6 +1,22 @@
 server:
   port: 8084
 spring:
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS_CONFIG:localhost:9092}
+    topic:
+      notification: ${NOTIFICATION_TOPIC:transfer-notification-topic}
   # Отключаем Flyway
   flyway:
     enabled: false
+urls:
+  account:
+    get:
+      account: ${ACCOUNT_GET_ACCOUNT_URL:http://localhost:8082/account?login={login}}
+      transfer: ${ACCOUNT_GET_TRANSFER_URL:http://localhost:8082/account/transfer?loginFrom={loginFrom}&loginTo={loginTo}&currencyTo={currencyTo}&currencyFrom={currencyFrom}}
+    patch:
+      balance: ${ACCOUNT_PATCH_BALANCE_URL:http://localhost:8082/account/balance}
+      transfer: ${ACCOUNT_PATCH_TRANSFER_URL:http://localhost:8082/account/transfer}
+  blocker: ${BLOCKER_URL:http://localhost:8086/blocker/block}
+  exchange:
+    exchange: ${EXCHANGE_EXCHANGE_URL:http://localhost:8087/exchange/exchange}
+    convert: ${EXCHANGE_CONVERT_URL:http://localhost:8087/exchange/convert}

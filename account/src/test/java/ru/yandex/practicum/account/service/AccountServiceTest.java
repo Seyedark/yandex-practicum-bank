@@ -4,11 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.account.SpringBootPostgreSQLBase;
@@ -39,15 +36,6 @@ public class AccountServiceTest extends SpringBootPostgreSQLBase {
 
     @Autowired
     AccountRepository accountRepository;
-
-    @MockBean
-    private ClientRegistrationRepository clientRegistrationRepository;
-
-    @MockBean
-    private OAuth2AuthorizedClientService authorizedClientService;
-
-    @MockBean
-    private RestCallerService restCallerService;
 
     @BeforeEach
     void cleanup() {

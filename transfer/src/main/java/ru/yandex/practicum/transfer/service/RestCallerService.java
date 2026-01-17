@@ -28,9 +28,6 @@ public class RestCallerService {
     @Value("${urls.account.patch.transfer}")
     private String patchTransferAccountsUrl;
 
-    @Value("${urls.notification}")
-    private String notificationUrl;
-
     @Value("${urls.blocker}")
     private String blockerUrl;
 
@@ -59,14 +56,6 @@ public class RestCallerService {
         HttpEntity<TransferRequestDto> request =
                 new HttpEntity<>(transferRequestDto, formHeadersWithToken(KeycloakEnum.ACCOUNT));
         restTemplate.patchForObject(patchTransferAccountsUrl, request, Void.class);
-    }
-
-    @Retry(name = "notificationService")
-    @CircuitBreaker(name = "notificationService", fallbackMethod = "fallbackSendNotifications")
-    public void sendNotifications(List<NotificationEmailRequestDto> notificationEmailRequestDtoList) {
-        HttpEntity<List<NotificationEmailRequestDto>> request =
-                new HttpEntity<>(notificationEmailRequestDtoList, formHeadersWithToken(KeycloakEnum.NOTIFICATION));
-        restTemplate.postForObject(notificationUrl, request, Void.class);
     }
 
     @Retry(name = "blockerService")
@@ -118,10 +107,6 @@ public class RestCallerService {
     }
 
     private void fallbackTransfer(TransferRequestDto transferRequestDto, Exception exception) {
-        defaultFallbackLogic(exception);
-    }
-
-    private void fallbackSendNotifications(List<NotificationEmailRequestDto> notificationEmailRequestDtoList, Exception exception) {
         defaultFallbackLogic(exception);
     }
 

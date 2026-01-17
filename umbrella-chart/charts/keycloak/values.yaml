@@ -13,4 +13,4 @@ config:
   keycloak_admin_password: "admin"
   kc_hostname_strict: "false"
   kc_hostname_strict_https: "false"
-  kc_http_relative_path: "/keycloak"
+  kc_http_relative_path: "/"

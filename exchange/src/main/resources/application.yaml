@@ -9,7 +9,12 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
-
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS_CONFIG:localhost:9092}
+    topic:
+      exchange: ${EXCHANGE_TOPIC:exchange-dto-list-topic}
+    consumer:
+      group-id: ${EXCHANGE_GROUP_ID:exchange}
   flyway:
     url: ${SPRING_FLYWAY_URL:jdbc:postgresql://localhost:5432/postgres}
     user: ${SPRING_DATASOURCE_USERNAME:postgres}
