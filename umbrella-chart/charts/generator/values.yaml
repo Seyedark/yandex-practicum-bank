@@ -12,3 +12,4 @@ service:
 config:
   exchange_topic: "exchange-dto-list-topic"
   bootstrap: "kafka:9092"
+  zipkin_url: "http://zipkin/api/v2/spans"

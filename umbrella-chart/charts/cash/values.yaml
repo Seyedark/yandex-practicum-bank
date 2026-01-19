@@ -22,3 +22,4 @@ config:
   account_client_secret: "cuqu6hPnGUhwcFlDijZLCYDZ8HuQJB4s"
   notification_topic: "cash-notification-topic"
   bootstrap: "kafka:9092"
+  zipkin_url: "http://zipkin/api/v2/spans"

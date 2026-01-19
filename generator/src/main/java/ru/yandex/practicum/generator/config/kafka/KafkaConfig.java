@@ -56,7 +56,10 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, ExchangeDtoList> exchangeDtoKafkaTemplate() {
-        return new KafkaTemplate<>(exchangeDtoEventProducerFactory());
+    public KafkaTemplate<String, ExchangeDtoList> exchangeDtoKafkaTemplate(
+            ProducerFactory<String, ExchangeDtoList> producerFactory) {
+        KafkaTemplate<String, ExchangeDtoList> template = new KafkaTemplate<>(producerFactory);
+        template.setObservationEnabled(true);
+        return template;
     }
 }

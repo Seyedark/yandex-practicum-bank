@@ -1,0 +1,9 @@
+replicaCount: 1
+
+image:
+  full: openzipkin/zipkin:3.5
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 9411

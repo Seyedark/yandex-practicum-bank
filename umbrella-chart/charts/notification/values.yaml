@@ -19,3 +19,4 @@ config:
   cash_notification_topic: "cash-notification-topic"
   notification_group_id: "exchange"
   bootstrap: "kafka:9092"
+  zipkin_url: "http://zipkin/api/v2/spans"

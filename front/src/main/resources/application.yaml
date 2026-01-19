@@ -8,7 +8,17 @@ server:
       host-header: x-forwarded-host
       port-header: x-forwarded-port
       internal-proxies: 10\.0\.0\.0/8|192\.168\.0\.0/16|172\.16\.0\.0/12
-
+management:
+  zipkin:
+    endpoint: ${ZIPKIN_URL:http://localhost:9411/api/v2/spans}
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,trace
 spring:
   application:
     name: front

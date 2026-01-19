@@ -15,3 +15,4 @@ data:
   BOOTSTRAP_SERVERS_CONFIG: {{ .Values.config.bootstrap | quote }}
   EXCHANGE_TOPIC: {{ .Values.config.exchange_topic | quote }}
   EXCHANGE_GROUP_ID: {{ .Values.config.exchange_group_id | quote }}
+  ZIPKIN_URL: {{ .Values.config.zipkin_url | quote }}

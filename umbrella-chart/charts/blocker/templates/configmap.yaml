@@ -9,3 +9,4 @@ metadata:
 data:
   #Quote нужен для экранирования
   SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: {{ .Values.config.keycloak_url | quote }}
+  ZIPKIN_URL: {{ .Values.config.zipkin_url | quote }}

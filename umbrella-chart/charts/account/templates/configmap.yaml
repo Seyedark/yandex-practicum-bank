@@ -15,3 +15,4 @@ data:
   SPRING_SECURITY_OAUTH2_PROVIDER_ISSUER_URI: {{ .Values.config.keycloak_url | quote }}
   BOOTSTRAP_SERVERS_CONFIG: {{ .Values.config.bootstrap | quote }}
   NOTIFICATION_TOPIC: {{ .Values.config.notification_topic | quote }}
+  ZIPKIN_URL: {{ .Values.config.zipkin_url | quote }}

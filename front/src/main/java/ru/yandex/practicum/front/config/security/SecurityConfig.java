@@ -3,10 +3,8 @@ package ru.yandex.practicum.front.config.security;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,7 +25,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/sign-up", "/account",
-                                        "/login","/logout", "/error").permitAll()
+                                        "/login", "/logout", "/error", "/actuator/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults())

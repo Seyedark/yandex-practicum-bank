@@ -16,3 +16,4 @@ data:
   TRANSFER_NOTIFICATION_TOPIC: {{ .Values.config.transfer_notification_topic | quote }}
   CASH_NOTIFICATION_TOPIC: {{ .Values.config.cash_notification_topic | quote }}
   NOTIFICATION_GROUP_ID: {{ .Values.config.notification_group_id | quote }}
+  ZIPKIN_URL: {{ .Values.config.zipkin_url | quote }}

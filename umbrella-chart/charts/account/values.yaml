@@ -17,3 +17,4 @@ config:
   keycloak_url: "http://keycloak/realms/master"
   notification_topic: "account-notification-topic"
   bootstrap: "kafka:9092"
+  zipkin_url: "http://zipkin/api/v2/spans"

@@ -1,6 +1,16 @@
 server:
   port: 8084
-
+management:
+  zipkin:
+    endpoint: ${ZIPKIN_URL:http://localhost:9411/api/v2/spans}
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,trace
 spring:
   application:
     name: transfer
