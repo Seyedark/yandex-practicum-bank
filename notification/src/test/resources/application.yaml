@@ -1,4 +1,12 @@
 spring:
   # Отключаем Flyway
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS_CONFIG:localhost:9092}
+    topic:
+      account: ${ACCOUNT_NOTIFICATION_TOPIC:account-notification-topic}
+      transfer: ${TRANSFER_NOTIFICATION_TOPIC:transfer-notification-topic}
+      cash: ${CASH_NOTIFICATION_TOPIC:cash-notification-topic}
+    consumer:
+      group-id: ${NOTIFICATION_GROUP_ID:notification}
   flyway:
     enabled: false

@@ -24,13 +24,6 @@ public class ExchangeController {
         return ResponseEntity.ok(exchangeService.getExchangeDtoList());
     }
 
-    @PostMapping("/exchange")
-    @PreAuthorize("hasAuthority('exchange_client')")
-    public ResponseEntity<Void> saveExchange(@RequestBody List<ExchangeDto> exchangeDtoList) {
-        exchangeService.saveExchange(exchangeDtoList);
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping("/convert")
     @PreAuthorize("hasAuthority('exchange_client')")
     public ResponseEntity<ConvertResponseDto> convert(@RequestBody ConvertRequestDto convertRequestDto) {

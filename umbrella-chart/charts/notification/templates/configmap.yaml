@@ -11,4 +11,8 @@ data:
   SPRING_DATASOURCE_URL: {{ .Values.config.database_url | quote }}
   SPRING_DATASOURCE_USERNAME: {{ .Values.config.database_username }}
   SPRING_FLYWAY_URL: {{ .Values.config.data_base_fly_way_url | quote }}
-  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: {{ .Values.config.keycloak_url | quote }}
+  BOOTSTRAP_SERVERS_CONFIG: {{ .Values.config.bootstrap | quote }}
+  ACCOUNT_NOTIFICATION_TOPIC: {{ .Values.config.account_notification_topic | quote }}
+  TRANSFER_NOTIFICATION_TOPIC: {{ .Values.config.transfer_notification_topic | quote }}
+  CASH_NOTIFICATION_TOPIC: {{ .Values.config.cash_notification_topic | quote }}
+  NOTIFICATION_GROUP_ID: {{ .Values.config.notification_group_id | quote }}

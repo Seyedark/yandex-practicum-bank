@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.generator.dto.ExchangeDto;
+import ru.yandex.practicum.generator.dto.ExchangeDtoList;
 import ru.yandex.practicum.generator.enums.CurrencyEnum;
 
 import java.math.BigDecimal;
@@ -15,12 +16,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GeneratorService {
-    private final RestCallerService restCallerService;
+
+    private final KafkaSenderService kafkaSenderService;
 
     @Scheduled(initialDelay = 60000, fixedRate = 60000)
     public void generateNewExchangeDtoList() {
         log.info("Start generate new exchange");
-        List<ExchangeDto> exchangeDtoList = new ArrayList<>();
+        List<ExchangeDto> list = new ArrayList<>();
         for (CurrencyEnum currency : CurrencyEnum.values()) {
             if (currency.equals(CurrencyEnum.RUB)) {
                 continue;
@@ -30,8 +32,10 @@ public class GeneratorService {
             exchangeDto.setCurrency(currency.name());
             exchangeDto.setPurchaseRate(BigDecimal.valueOf(number));
             exchangeDto.setSellingRate(BigDecimal.valueOf(number - 1));
-            exchangeDtoList.add(exchangeDto);
+            list.add(exchangeDto);
         }
-        restCallerService.sendNewExchangeDtoList(exchangeDtoList);
+        ExchangeDtoList exchangeDtoList = new ExchangeDtoList();
+        exchangeDtoList.setExchangeDtoList(list);
+        kafkaSenderService.sendExchangeDtoList(exchangeDtoList);
     }
 }
