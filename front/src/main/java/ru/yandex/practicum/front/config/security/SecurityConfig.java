@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 import ru.yandex.practicum.front.service.AccountService;
+import ru.yandex.practicum.front.service.MetricService;
 
 @Configuration
 @EnableWebSecurity
@@ -34,14 +35,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(AccountService accountService) {
-        return new RemoteUserDetailsService(accountService);
+    public UserDetailsService userDetailsService(AccountService accountService, MetricService metricService) {
+        return new RemoteUserDetailsService(accountService, metricService);
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder,
-                                                         UserDetailsService userDetailsService) {
-        return new RemoteAuthenticationProvider(passwordEncoder, userDetailsService);
+                                                         UserDetailsService userDetailsService,
+                                                         MetricService metricService) {
+        return new RemoteAuthenticationProvider(passwordEncoder, userDetailsService, metricService);
     }
 
     @Bean

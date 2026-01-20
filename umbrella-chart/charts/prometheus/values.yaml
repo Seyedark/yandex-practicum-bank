@@ -1,0 +1,9 @@
+replicaCount: 1
+
+image:
+  full: prom/prometheus
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 9090

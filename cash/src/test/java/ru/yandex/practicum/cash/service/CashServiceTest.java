@@ -1,5 +1,6 @@
 package ru.yandex.practicum.cash.service;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,9 @@ import static org.mockito.Mockito.*;
 @Import(TestSecurityConfig.class)
 @DisplayName("Класс для проверки взаимодействия с сервисом зачисления/списания и с базой")
 public class CashServiceTest extends SpringBootPostgreSQLBase {
+
+    @Autowired
+    MeterRegistry registry;
 
     @Autowired
     CashService cashService;

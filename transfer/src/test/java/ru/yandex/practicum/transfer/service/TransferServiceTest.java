@@ -1,5 +1,6 @@
 package ru.yandex.practicum.transfer.service;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ import static org.mockito.Mockito.*;
 @Import(TestSecurityConfig.class)
 @DisplayName("Класс для проверки взаимодействия с сервисом зачисления/списания и с базой")
 public class TransferServiceTest extends SpringBootPostgreSQLBase {
+
+    @Autowired
+    MeterRegistry registry;
 
     @Autowired
     TransferService transferService;

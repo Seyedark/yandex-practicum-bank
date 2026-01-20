@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.front.dto.AccountDto;
 import ru.yandex.practicum.front.service.AccountService;
+import ru.yandex.practicum.front.service.MetricService;
 
 import java.util.Collections;
 
@@ -17,13 +18,19 @@ import java.util.Collections;
 public class RemoteUserDetailsService implements UserDetailsService {
 
     private final AccountService accountService;
+    private final MetricService metricService;
 
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
-        AccountDto accountDto = accountService.getAccountByUsername(login);
-        return User.withUsername(accountDto.getLogin())
-                .password(accountDto.getPassword())
-                .authorities(Collections.emptyList())
-                .build();
+        try {
+            AccountDto accountDto = accountService.getAccountByUsername(login);
+            return User.withUsername(accountDto.getLogin())
+                    .password(accountDto.getPassword())
+                    .authorities(Collections.emptyList())
+                    .build();
+        } catch (Exception e) {
+            metricService.failedLogin(login);
+            throw e;
+        }
     }
 }

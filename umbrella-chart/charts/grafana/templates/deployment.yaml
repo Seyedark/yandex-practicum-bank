@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+# Метаданные объекта
+metadata:
+  # Имя Deployment. Уникальное в namespace, используется в командах kubectl
+  name: {{ include "grafana.name" . }}
+  # Метки для организации и выборки объектов
+  labels:
+    # Стандартная метка для идентификации приложения
+    app: {{ include "grafana.name" . }}
+# Спецификация - описывает желаемое состояние
+spec:
+  # Количество реплик (копий) приложения
+  replicas: {{ .Values.replicaCount }}
+  # Селектор - определяет какие поды управляются этим Deployment
+  selector:
+    # Ищет поды с метками, которые соответствуют этим
+    matchLabels:
+      # Будет управлять всными подами с этой меткой
+      app: {{ include "grafana.name" . }}
+  # Шаблон для создания новых подов
+  template:
+    # Метаданные создаваемых подов
+    metadata:
+      # Метки, которые будут присвоены создаваемым подам
+      labels:
+        # ЭТА МЕТКА ДОЛЖНА СОВПАДАТЬ С SELECTOR!
+        app: {{ include "grafana.name" . }}
+    # Спецификация контейнеров внутри пода
+    spec:
+      # Список контейнеров в поде (можно несколько)
+      containers:
+        # Имя контейнера внутри пода (для логирования, мониторинга)
+        - name: {{ include "grafana.name" . }}
+          # Docker образ для контейнера
+          image: {{ .Values.image.full }}
+          # Порт из конфига: server.port
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          volumeMounts:
+            - name: {{ include "grafana.name" . }}-dashboards
+              mountPath: /var/lib/grafana/dashboards
+            - name: {{ include "grafana.name" . }}-dashboard-provider
+              mountPath: /etc/grafana/provisioning/dashboards
+            - name: {{ include "grafana.name" . }}-datasources
+              mountPath: /etc/grafana/provisioning/datasources
+      volumes:
+        - name: {{ include "grafana.name" . }}-dashboards
+          configMap:
+            name: {{ include "grafana.name" . }}-dashboards
+
+        - name: {{ include "grafana.name" . }}-dashboard-provider
+          configMap:
+            name: {{ include "grafana.name" . }}-dashboards-provider
+
+        - name: {{ include "grafana.name" . }}-datasources
+          configMap:
+            name: {{ include "grafana.name" . }}-datasources

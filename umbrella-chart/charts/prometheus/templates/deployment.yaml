@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+# Метаданные объекта
+metadata:
+  # Имя Deployment. Уникальное в namespace, используется в командах kubectl
+  name: {{ include "prometheus.name" . }}
+  # Метки для организации и выборки объектов
+  labels:
+    # Стандартная метка для идентификации приложения
+    app: {{ include "prometheus.name" . }}
+# Спецификация - описывает желаемое состояние
+spec:
+  # Количество реплик (копий) приложения
+  replicas: {{ .Values.replicaCount }}
+  # Селектор - определяет какие поды управляются этим Deployment
+  selector:
+    # Ищет поды с метками, которые соответствуют этим
+    matchLabels:
+      # Будет управлять всными подами с этой меткой
+      app: {{ include "prometheus.name" . }}
+  # Шаблон для создания новых подов
+  template:
+    # Метаданные создаваемых подов
+    metadata:
+      # Метки, которые будут присвоены создаваемым подам
+      labels:
+        # ЭТА МЕТКА ДОЛЖНА СОВПАДАТЬ С SELECTOR!
+        app: {{ include "prometheus.name" . }}
+    # Спецификация контейнеров внутри пода
+    spec:
+      # Список контейнеров в поде (можно несколько)
+      containers:
+        # Имя контейнера внутри пода (для логирования, мониторинга)
+        - name: {{ include "prometheus.name" . }}
+          # Docker образ для контейнера
+          image: {{ .Values.image.full }}
+          # Порт из конфига: server.port
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          volumeMounts:
+            - name: {{ include "prometheus.name" . }}
+              mountPath: /etc/prometheus
+      volumes:
+        - name: {{ include "prometheus.name" . }}
+          configMap:
+            name: {{ include "prometheus.name" . }}

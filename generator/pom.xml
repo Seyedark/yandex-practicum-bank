@@ -49,5 +49,9 @@
             <groupId>io.zipkin.brave</groupId>
             <artifactId>brave-instrumentation-kafka-clients</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
     </dependencies>
 </project>
