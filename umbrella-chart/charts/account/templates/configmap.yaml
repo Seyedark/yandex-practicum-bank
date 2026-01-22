@@ -14,5 +14,6 @@ data:
   SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: {{ .Values.config.keycloak_url | quote }}
   SPRING_SECURITY_OAUTH2_PROVIDER_ISSUER_URI: {{ .Values.config.keycloak_url | quote }}
   BOOTSTRAP_SERVERS_CONFIG: {{ .Values.config.bootstrap | quote }}
+  LOG_TOPIC: {{ .Values.config.log_topic | quote }}
   NOTIFICATION_TOPIC: {{ .Values.config.notification_topic | quote }}
   ZIPKIN_URL: {{ .Values.config.zipkin_url | quote }}

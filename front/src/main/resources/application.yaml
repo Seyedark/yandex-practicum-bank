@@ -22,6 +22,8 @@ management:
 spring:
   application:
     name: front
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS_CONFIG:localhost:9092}
   security:
     oauth2:
       client:
@@ -130,6 +132,11 @@ resilience4j:
           - org.springframework.web.client.HttpClientErrorException$UnprocessableEntity
           - org.springframework.web.client.HttpClientErrorException$NotFound
           - org.springframework.web.client.HttpClientErrorException
+
+kafka-log:
+  topic:
+    log: ${LOG_TOPIC:log-topic}
+
 urls:
   account:
     get:

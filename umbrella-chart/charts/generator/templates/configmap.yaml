@@ -9,5 +9,6 @@ metadata:
 data:
   #Quote нужен для экранирования
   BOOTSTRAP_SERVERS_CONFIG: {{ .Values.config.bootstrap | quote }}
+  LOG_TOPIC: {{ .Values.config.log_topic | quote }}
   EXCHANGE_TOPIC: {{ .Values.config.exchange_topic | quote }}
   ZIPKIN_URL: {{ .Values.config.zipkin_url | quote }}

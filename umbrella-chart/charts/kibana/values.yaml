@@ -1,0 +1,14 @@
+replicaCount: 1
+
+image:
+  full: docker.elastic.co/kibana/kibana:9.2.4
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 5601
+
+config:
+  name: "kibana"
+  host: "0.0.0.0"
+  elastic: "http://elastic"

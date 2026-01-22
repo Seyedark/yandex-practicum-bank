@@ -13,6 +13,7 @@ data:
   SPRING_FLYWAY_URL: {{ .Values.config.data_base_fly_way_url | quote }}
   SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: {{ .Values.config.keycloak_url | quote }}
   BOOTSTRAP_SERVERS_CONFIG: {{ .Values.config.bootstrap | quote }}
+  LOG_TOPIC: {{ .Values.config.log_topic | quote }}
   EXCHANGE_TOPIC: {{ .Values.config.exchange_topic | quote }}
   EXCHANGE_GROUP_ID: {{ .Values.config.exchange_group_id | quote }}
   ZIPKIN_URL: {{ .Values.config.zipkin_url | quote }}

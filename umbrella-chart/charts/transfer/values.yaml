@@ -27,4 +27,5 @@ config:
   exchange_client_secret: "d2BXJ8UKxrdbF8TybLsZp0vsIGXCwt8Y"
   notification_topic: "transfer-notification-topic"
   bootstrap: "kafka:9092"
+  log_topic: "log-topic"
   zipkin_url: "http://zipkin/api/v2/spans"

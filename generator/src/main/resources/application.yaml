@@ -18,3 +18,7 @@ spring:
     bootstrap-servers: ${BOOTSTRAP_SERVERS_CONFIG:localhost:9092}
     topic:
       exchange: ${EXCHANGE_TOPIC:exchange-dto-list-topic}
+
+kafka-log:
+  topic:
+    log: ${LOG_TOPIC:log-topic}

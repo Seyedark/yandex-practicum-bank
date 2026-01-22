@@ -45,3 +45,8 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI:http://localhost:9090/realms/master}
+
+
+kafka-log:
+  topic:
+    log: ${LOG_TOPIC:log-topic}

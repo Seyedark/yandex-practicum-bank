@@ -16,3 +16,7 @@ urls:
     patch:
       balance: ${ACCOUNT_PATCH_BALANCE_URL:http://localhost:8082/account/balance}
   blocker: ${BLOCKER_URL:http://localhost:8086/blocker/block}
+
+kafka-log:
+  topic:
+    log: ${LOG_TOPIC:log-topic}

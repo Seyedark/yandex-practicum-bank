@@ -8,6 +8,9 @@ spring:
   # Отключаем Flyway
   flyway:
     enabled: false
+kafka-log:
+  topic:
+    log: ${LOG_TOPIC:log-topic}
 urls:
   account:
     get:

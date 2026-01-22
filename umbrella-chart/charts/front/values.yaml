@@ -24,3 +24,5 @@ config:
   cash_client_secret: "lIIF4SDSTlxvpZK4RfDwwgBDgiW3NNbU"
   transfer_client_secret: "izeEdZjAqR6gbTF2HtdUmQfXgQj0mRMf"
   zipkin_url: "http://zipkin/api/v2/spans"
+  bootstrap: "kafka:9092"
+  log_topic: "log-topic"

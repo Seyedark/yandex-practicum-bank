@@ -24,6 +24,8 @@ public class KafkaConfig {
     private String bootstrapServers;
     @Value("${spring.kafka.topic.exchange}")
     private String exchangeTopic;
+    @Value("${kafka-log.topic.log}")
+    private String logTopic;
 
     @Bean
     public KafkaAdmin kafkaAdmin() {
@@ -36,6 +38,9 @@ public class KafkaConfig {
     public NewTopic exchangeDtoListTopic() {
         return new NewTopic(exchangeTopic, 1, (short) 1);
     }
+
+    @Bean
+    public NewTopic logTopic() {return new NewTopic(logTopic, 1, (short) 1);}
 
     @Bean
     public ProducerFactory<String, ExchangeDtoList> exchangeDtoEventProducerFactory() {
