@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 0,
+  "id": 3,
   "links": [],
   "panels": [
     {
@@ -508,7 +508,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by (login) (failed_change_account_balance_total)",
+          "expr": "sum by (login) (increase(failed_change_account_balance_total[5m]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -569,7 +569,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum by (login_from,login_to) (increase(failed_transfer_total[30m]))",
+          "expr": "sum by (login_from,login_to) (increase(failed_transfer_total[5m]))",
           "legendFormat": "{{login_from}} to {{login_to}}",
           "range": true,
           "refId": "Failure"
@@ -593,5 +593,5 @@
   "timezone": "browser",
   "title": "Главный дашборд",
   "uid": "ad4bkgj",
-  "version": 14
+  "version": 3
 }

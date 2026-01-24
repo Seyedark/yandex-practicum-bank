@@ -26,46 +26,42 @@ public class TransferService {
 
     @Transactional
     public void transfer(TransferFrontRequestDto transferFrontRequestDto) {
-        try {
-            BlockDto blockDto = restCallerService.getBlock();
-            if (blockDto.isBlocked()) {
-                List<String> errorTypeList = new ArrayList<>();
-                errorTypeList.add(TransferErrorEnum.BLOCK_ERROR.getMessage());
-                throw new TransferCustomException(errorTypeList);
-            }
-            TransferAccountsDto transferAccountsDto = restCallerService.getTransferAccountsDto(transferFrontRequestDto.getLoginFrom(),
-                    transferFrontRequestDto.getLoginTo(), transferFrontRequestDto.getCurrencyTo(), transferFrontRequestDto.getCurrencyFrom());
-            if (checkBalance(transferAccountsDto.getBalanceFrom(), transferFrontRequestDto.getTransferAmount())) {
+        BlockDto blockDto = restCallerService.getBlock();
+        if (blockDto.isBlocked()) {
+            List<String> errorTypeList = new ArrayList<>();
+            errorTypeList.add(TransferErrorEnum.BLOCK_ERROR.getMessage());
+            throw new TransferCustomException(errorTypeList);
+        }
+        TransferAccountsDto transferAccountsDto = restCallerService.getTransferAccountsDto(transferFrontRequestDto.getLoginFrom(),
+                transferFrontRequestDto.getLoginTo(), transferFrontRequestDto.getCurrencyTo(), transferFrontRequestDto.getCurrencyFrom());
+        if (checkBalance(transferAccountsDto.getBalanceFrom(), transferFrontRequestDto.getTransferAmount())) {
 
 
-                ConvertRequestDto convertRequestDto = new ConvertRequestDto();
-                convertRequestDto.setCurrencyTo(transferFrontRequestDto.getCurrencyTo());
-                convertRequestDto.setCurrencyFrom(transferFrontRequestDto.getCurrencyFrom());
-                convertRequestDto.setConvertAmount(transferFrontRequestDto.getTransferAmount());
+            ConvertRequestDto convertRequestDto = new ConvertRequestDto();
+            convertRequestDto.setCurrencyTo(transferFrontRequestDto.getCurrencyTo());
+            convertRequestDto.setCurrencyFrom(transferFrontRequestDto.getCurrencyFrom());
+            convertRequestDto.setConvertAmount(transferFrontRequestDto.getTransferAmount());
 
-                ConvertResponseDto convertResponseDto = restCallerService.convert(convertRequestDto);
+            ConvertResponseDto convertResponseDto = restCallerService.convert(convertRequestDto);
 
-                notificationRepository.saveAll(formNotificationList(transferAccountsDto, transferFrontRequestDto.getTransferAmount()));
+            notificationRepository.saveAll(formNotificationList(transferAccountsDto, transferFrontRequestDto.getTransferAmount()));
 
-                TransferRequestDto transferRequestDto = new TransferRequestDto();
-                transferRequestDto.setLoginFrom(transferAccountsDto.getLoginFrom());
-                transferRequestDto.setBalanceFrom(transferAccountsDto.getBalanceFrom().subtract(transferFrontRequestDto.getTransferAmount()));
-                transferRequestDto.setLoginTo(transferAccountsDto.getLoginTo());
-                transferRequestDto.setBalanceTo(transferAccountsDto.getBalanceTo().add(convertResponseDto.getConvertedAmount()));
-                transferRequestDto.setCurrencyFrom(transferFrontRequestDto.getCurrencyFrom());
-                transferRequestDto.setCurrencyTo(transferFrontRequestDto.getCurrencyTo());
+            TransferRequestDto transferRequestDto = new TransferRequestDto();
+            transferRequestDto.setLoginFrom(transferAccountsDto.getLoginFrom());
+            transferRequestDto.setBalanceFrom(transferAccountsDto.getBalanceFrom().subtract(transferFrontRequestDto.getTransferAmount()));
+            transferRequestDto.setLoginTo(transferAccountsDto.getLoginTo());
+            transferRequestDto.setBalanceTo(transferAccountsDto.getBalanceTo().add(convertResponseDto.getConvertedAmount()));
+            transferRequestDto.setCurrencyFrom(transferFrontRequestDto.getCurrencyFrom());
+            transferRequestDto.setCurrencyTo(transferFrontRequestDto.getCurrencyTo());
 
-                restCallerService.transfer(transferRequestDto);
-            } else {
-                List<String> errorTypeList = new ArrayList<>();
-                errorTypeList.add(TransferErrorEnum.BALANCE_ERROR.getMessage()
-                        .formatted(transferFrontRequestDto.getTransferAmount(),
-                                transferAccountsDto.getBalanceFrom()));
-                throw new TransferCustomException(errorTypeList);
-            }
-        } catch (Exception e) {
+            restCallerService.transfer(transferRequestDto);
+        } else {
+            List<String> errorTypeList = new ArrayList<>();
+            errorTypeList.add(TransferErrorEnum.BALANCE_ERROR.getMessage()
+                    .formatted(transferFrontRequestDto.getTransferAmount(),
+                            transferAccountsDto.getBalanceFrom()));
             metricService.failedTransfer(transferFrontRequestDto);
-            throw e;
+            throw new TransferCustomException(errorTypeList);
         }
     }
 

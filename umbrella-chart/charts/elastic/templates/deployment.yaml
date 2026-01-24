@@ -44,3 +44,9 @@ spec:
               value: {{ .Values.security.enabled | quote }}
             - name: xpack.security.enrollment.enabled
               value: {{ .Values.security.enrollment | quote }}
+      volumes:
+        # Задаётся имя волума для Pod
+        - name: { { include "elastic.name" . } }
+          persistentVolumeClaim:
+            # Ссылается на имя PVC(Как флешка)
+            claimName: { { include "elastic.name" . } }
