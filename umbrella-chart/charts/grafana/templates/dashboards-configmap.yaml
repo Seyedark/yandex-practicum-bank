@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # Имя ConfigMap - используется для ссылки
+  name: {{ include "grafana.name" . }}-dashboards
+  # Метки для организации (опционально)
+  labels:
+    app: {{ include "grafana.name" . }}-dashboards
+data:
+  grafana.json: |
+    {{ .Files.Get "grafana.json" | nindent 4 }}

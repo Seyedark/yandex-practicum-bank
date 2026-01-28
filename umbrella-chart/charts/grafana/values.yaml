@@ -1,0 +1,16 @@
+replicaCount: 1
+
+image:
+  full: grafana/grafana
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+
+grafana:
+  datasources:
+    prometheus:
+      name: Prometheus
+      url: http://prometheus

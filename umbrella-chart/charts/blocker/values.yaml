@@ -11,3 +11,6 @@ service:
 
 config:
   keycloak_url: "http://keycloak/realms/master"
+  zipkin_url: "http://zipkin/api/v2/spans"
+  bootstrap: "kafka:9092"
+  log_topic: "log-topic"

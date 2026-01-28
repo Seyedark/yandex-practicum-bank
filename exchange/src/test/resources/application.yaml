@@ -8,3 +8,7 @@ spring:
       exchange: ${EXCHANGE_TOPIC:exchange-dto-list-topic}
     consumer:
       group-id: ${EXCHANGE_GROUP_ID:exchange}
+
+kafka-log:
+  topic:
+    log: ${LOG_TOPIC:log-topic}

@@ -1,0 +1,9 @@
+replicaCount: 1
+
+image:
+  full: docker.elastic.co/logstash/logstash:9.2.4
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 9600

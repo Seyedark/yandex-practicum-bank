@@ -17,4 +17,6 @@ data:
   ACCOUNT_PATCH_BALANCE_URL: {{ .Values.config.account_patch_balance_url | quote }}
   BLOCKER_URL: {{ .Values.config.blocker_url | quote }}
   BOOTSTRAP_SERVERS_CONFIG: {{ .Values.config.bootstrap | quote }}
+  LOG_TOPIC: {{ .Values.config.log_topic | quote }}
   NOTIFICATION_TOPIC: {{ .Values.config.notification_topic | quote }}
+  ZIPKIN_URL: {{ .Values.config.zipkin_url | quote }}

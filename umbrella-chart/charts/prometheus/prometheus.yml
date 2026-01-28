@@ -1,0 +1,64 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: [ "prometheus" ]
+
+  - job_name: "front"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: [ "front" ]
+        labels:
+          application: "front"
+
+  - job_name: "account"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: [ "account" ]
+        labels:
+          application: "account"
+
+  - job_name: "cash"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: [ "cash" ]
+        labels:
+          application: "cash"
+
+  - job_name: "transfer"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: [ "transfer" ]
+        labels:
+          application: "transfer"
+
+  - job_name: "notification"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: [ "notification" ]
+        labels:
+          application: "notification"
+
+  - job_name: "blocker"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: [ "blocker" ]
+        labels:
+          application: "blocker"
+
+  - job_name: "exchange"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: [ "exchange" ]
+        labels:
+          application: "exchange"
+
+  - job_name: "generator"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: [ "generator" ]
+        labels:
+          application: "generator"

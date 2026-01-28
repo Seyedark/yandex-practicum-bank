@@ -3,10 +3,8 @@ package ru.yandex.practicum.front.config.security;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 import ru.yandex.practicum.front.service.AccountService;
+import ru.yandex.practicum.front.service.MetricService;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +26,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/sign-up", "/account",
-                                        "/login","/logout", "/error").permitAll()
+                                        "/login", "/logout", "/error", "/actuator/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults())
@@ -36,14 +35,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(AccountService accountService) {
-        return new RemoteUserDetailsService(accountService);
+    public UserDetailsService userDetailsService(AccountService accountService, MetricService metricService) {
+        return new RemoteUserDetailsService(accountService, metricService);
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder,
-                                                         UserDetailsService userDetailsService) {
-        return new RemoteAuthenticationProvider(passwordEncoder, userDetailsService);
+                                                         UserDetailsService userDetailsService,
+                                                         MetricService metricService) {
+        return new RemoteAuthenticationProvider(passwordEncoder, userDetailsService, metricService);
     }
 
     @Bean

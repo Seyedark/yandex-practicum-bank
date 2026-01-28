@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "prometheus.name" . }}
+  # Дополнительные настройки для Ingress контроллера
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  # Список правил маршрутизации
+  rules:
+    - host: prometheus.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            # Куда перенаправлять трафик
+            backend:
+              # Имя Service (должен существовать в том же namespace)
+              service:
+                name: {{ include "prometheus.name" . }}
+                # Порт Service (port в Service spec, не targetPort!)
+                port:
+                  number: {{ .Values.service.port }}

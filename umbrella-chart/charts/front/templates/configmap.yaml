@@ -18,3 +18,6 @@ data:
   CASH_URL: {{ .Values.config.cash_url | quote }}
   TRANSFER_PATCH_URL: {{ .Values.config.transfer_patch_url | quote }}
   TRANSFER_GET_URL: {{ .Values.config.transfer_get_url | quote }}
+  ZIPKIN_URL: {{ .Values.config.zipkin_url | quote }}
+  BOOTSTRAP_SERVERS_CONFIG: {{ .Values.config.bootstrap | quote }}
+  LOG_TOPIC: {{ .Values.config.log_topic | quote }}

@@ -18,3 +18,5 @@ config:
   exchange_topic: "exchange-dto-list-topic"
   exchange_group_id: "exchange"
   bootstrap: "kafka:9092"
+  log_topic: "log-topic"
+  zipkin_url: "http://zipkin/api/v2/spans"

@@ -10,3 +10,7 @@ spring:
       group-id: ${NOTIFICATION_GROUP_ID:notification}
   flyway:
     enabled: false
+
+kafka-log:
+  topic:
+    log: ${LOG_TOPIC:log-topic}

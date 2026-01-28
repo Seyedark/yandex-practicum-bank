@@ -2,6 +2,8 @@ package ru.yandex.practicum.notification.config.kafka;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -27,6 +30,18 @@ public class KafkaConfig {
 
     @Value("${spring.kafka.consumer.group-id}")
     private String groupId;
+    @Value("${kafka-log.topic.log}")
+    private String logTopic;
+
+    @Bean
+    public KafkaAdmin kafkaAdmin() {
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        return new KafkaAdmin(configs);
+    }
+
+    @Bean
+    public NewTopic logTopic() {return new NewTopic(logTopic, 1, (short) 1);}
 
     public ConsumerFactory<String, NotificationEmailRequestDto> consumerFactory() {
         Map<String, Object> configs = new HashMap<>();
@@ -49,6 +64,7 @@ public class KafkaConfig {
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.getContainerProperties().setObservationEnabled(true);
         factory.setConcurrency(3);
         factory.setCommonErrorHandler(errorHandler());
         return factory;

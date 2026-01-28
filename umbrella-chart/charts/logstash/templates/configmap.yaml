@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # Имя ConfigMap - используется для ссылки
+  name: {{ include "logstash.name" . }}
+  # Метки для организации (опционально)
+  labels:
+    app: {{ include "logstash.name" . }}
+data:
+  logstash.conf: |
+    {{ .Files.Get "logstash.conf" | nindent 4 }}

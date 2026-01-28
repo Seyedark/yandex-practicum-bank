@@ -14,7 +14,6 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import ru.yandex.practicum.transfer.dto.NotificationEmailRequestDto;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +24,8 @@ public class KafkaConfig {
     private String bootstrapServers;
     @Value("${spring.kafka.topic.notification}")
     private String notificationTopic;
+    @Value("${kafka-log.topic.log}")
+    private String logTopic;
 
     @Bean
     public KafkaAdmin kafkaAdmin() {
@@ -37,6 +38,9 @@ public class KafkaConfig {
     public NewTopic notificationTopic() {
         return new NewTopic(notificationTopic, 1, (short) 1);
     }
+
+    @Bean
+    public NewTopic logTopic() {return new NewTopic(logTopic, 1, (short) 1);}
 
     @Bean
     public ProducerFactory<String, NotificationEmailRequestDto> notificationProducerFactory() {
@@ -55,7 +59,10 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, NotificationEmailRequestDto> notificationKafkaTemplate() {
-        return new KafkaTemplate<>(notificationProducerFactory());
+    public KafkaTemplate<String, NotificationEmailRequestDto> notificationKafkaTemplate(
+            ProducerFactory<String, NotificationEmailRequestDto> producerFactory) {
+        KafkaTemplate<String, NotificationEmailRequestDto> template = new KafkaTemplate<>(producerFactory);
+        template.setObservationEnabled(true);
+        return template;
     }
 }
